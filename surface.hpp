@@ -1,0 +1,63 @@
+#ifndef SURFACE_HPP
+#define SURFACE_HPP
+
+
+#include <cassert>
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+#include "color.hpp"
+#include "image.hpp"
+#include "point2d.hpp"
+#include "rectangle.hpp"
+#include "texture.hpp"
+#include "sprite.hpp"
+
+
+class Sprite;
+class Text;
+
+
+class Surface
+{
+public:
+//---------------------------------------------------------
+
+    Surface(){}
+
+    Surface(int width, int height);
+
+    ~Surface(){}
+//---------------------------------------------------------
+
+    bool create(int width, int height);
+
+    void clear(Color color = Color{0x000000FF});
+
+    void update();
+
+    void draw_line(const Point2d &point1, const Point2d &point2, Color color);
+
+    void draw_rectangle(const Rectangle &rectangle, Color color);
+
+    void draw_image(const Image &image);
+
+    void draw_surface(const Point2d &at, const Surface &surface, const Rectangle &rectangle = Rectangle{0, 0, 0, 0});
+
+    void draw_sprite(const Sprite &sprite);
+
+    void draw_text(const Text &text);
+
+
+    const Texture &get_texture() const;
+    
+
+private:
+public:
+    void update_texture_();
+
+    sf::RenderTexture surface_{};
+    Texture           surface_texture_{};
+};
+
+
+#endif
