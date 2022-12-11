@@ -14,8 +14,8 @@
 #include "containerwidget.hpp"
 
 
-static const unsigned STANDARD_WINDOW_WIDTH   = 1024;
-static const unsigned STANDARD_WINDOW_HEIGHT  = 768;
+static const int STANDARD_WINDOW_WIDTH   = 1024;
+static const int STANDARD_WINDOW_HEIGHT  = 768;
 
 
 static const char *STANDARD_WINDOW_NAME = "Gui";
@@ -25,8 +25,8 @@ class Window
 {   
 public:
 //-----------------------------------------------------------------
-    Window(unsigned width   = STANDARD_WINDOW_WIDTH, 
-           unsigned height  = STANDARD_WINDOW_HEIGHT, 
+    Window(int width   = STANDARD_WINDOW_WIDTH, 
+           int height  = STANDARD_WINDOW_HEIGHT, 
            const char *name = STANDARD_WINDOW_NAME);
 
     virtual ~Window(){}
@@ -36,8 +36,8 @@ public:
     Window &operator =(const Window &window) = delete;
 //-----------------------------------------------------------------
     
-    void create(unsigned width   = STANDARD_WINDOW_WIDTH,
-                unsigned height  = STANDARD_WINDOW_HEIGHT,
+    void create(int width   = STANDARD_WINDOW_WIDTH,
+                int height  = STANDARD_WINDOW_HEIGHT,
                 const char *name = STANDARD_WINDOW_NAME);
 
     void open();
@@ -64,20 +64,13 @@ public:
 
     bool poll_event(Event &event);
 
-    //void update_on_time() override;
-
-
-    //EventHandlerState on_paint_event(const Event *event) override;
-
 //-------------------------------------------------------------------------------------
 protected:
-public:
-
-    //void output_certain_widget_form_(Color color = Color{WHITE}) override;
+//public:
 
 //-------------------------Variables---------------------------------------------------
-    unsigned width_  = 0;
-    unsigned height_ = 0;
+    int width_  = 0;
+    int height_ = 0;
 
     char *name_ = const_cast<char *> (STANDARD_WINDOW_NAME);
 

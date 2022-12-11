@@ -3,14 +3,16 @@
 
 Widget::Widget(Widget *parent)
   : Widget(Rectangle{100, 100, 200, 200}, parent)
-{}
+{
+    std::cout << "CALLED FICTIVE WIDGET CONSTRUCTOR" << std::endl;
+}
 
 Widget::Widget(const Rectangle &rectangle, Widget *parent)
   : area_(rectangle),
     surface_(new Surface(rectangle.get_width(), rectangle.get_height())),
+    skin_(new Texture{}),
     parent_(parent)        
 {
-    std::cout << "init widget" << std::endl;
     if (parent != nullptr)
     {
         parent->add_child(this);
@@ -21,41 +23,21 @@ Widget::Widget(const Rectangle &rectangle, Widget *parent)
     }
 }
 
-
-Widget::Widget(const Rectangle &rectangle, Surface *surface, Widget *parent)          // copypaste?
-  : area_(rectangle),
-    surface_(surface),
-    parent_(parent)
-{
-    if (parent != nullptr)
-    {
-        parent->add_child(this);
-    }
-}
-
 Widget::~Widget()
 {
     delete surface_;
+    delete skin_;
 }
-
 
 
 void Widget::set_event_manager(EventManager *event_manager)
 {
     if ((event_manager == nullptr) || (event_manager_ptr_ != nullptr))
     {
-        std::cout << id_ << " was not connected to event_manager because ";
-        if (event_manager == nullptr)
-        {
-            std::cout << "given is nullptr" << std::endl;
-        }
-        else if (event_manager_ptr_ != nullptr)
-        {
-            std::cout << "already connected" << std::endl;
-        }
-
         return;
     }
+
+    //std::cout << "Widget event manager set, id " << event_manager->identif_ << std::endl;
 
     event_manager_ptr_ = event_manager;
     event_manager_ptr_->subscribe(this);
@@ -68,46 +50,24 @@ void Widget::add_child(Widget *child)
 
     children_.push_back(child);
     child->set_event_manager(event_manager_ptr_);
-    std::cout << "add child to event manager with identif " << event_manager_ptr_->identif_ << std::endl;
-}
-
-void Widget::resize(int width, int height)                                    // not tested
-{
-    area_.set_width(width);
-    area_.set_height(height);
-
-    sprite_.set_texture_rect(Rectangle{0, 0, width, height});
+    //std::cout << "add child to event manager with identif " << event_manager_ptr_->identif_ << std::endl;
 }
 
 
 void Widget::render(Surface *surface)
 {
-    if (surface_ != nullptr)
+    if ((surface_ != nullptr) && (!hidden_))
     {
-        //update_surface();
-        //std::cout << "drawing sprite of id " << id_ << std::endl; 
-        //if (id_ != 1)
+        //std::cout << "render: rendering " << id_ << std::endl;
 
-        sprite_.load_from_surface(surface_);
-        sprite_.set_position(area_.get_x(), area_.get_y());
-        surface->draw_sprite(sprite_);
-        
-        // if (id_ == 1)
-        // {
-        //     sf::FloatRect fr = sprite_.sprite_.getLocalBounds();
-        //     std::cout << "left: " << fr.left << " top: " << fr.top << " width: " << fr.width << " height: " << fr.height << std::endl;
-        //     sf::Vector2f v = sprite_.sprite_.getPosition();
-        //     sf::Vector2f v1= sprite_.sprite_.getOrigin();
-        //     //std::cout << "position: " << v.x << " " << v.y << std::endl << "origin: " << v1.x << " " << v1.y << std::endl;
-        // }
-        // if (id_ == 1)
-        // {
-        //     std::cout << "children size: " << children_.size() << std::endl;
-        // }
-        //std::cout << "id: " << id_ << " children size: " << children_.size() << std::endl; 
+        Sprite temp{};
+        temp.load_from_surface(surface_);
+        temp.set_position(area_.get_x(), area_.get_y());
+        surface->draw_sprite(temp);
+    
         for (int child_index = 0; child_index < children_.size(); ++child_index)
         {
-            children_.at(child_index)->render(surface);
+            children_[child_index]->render(surface);
         }
     }
     else
@@ -117,44 +77,30 @@ void Widget::render(Surface *surface)
 }
 
 
-// void Widget::init_surface(const char *texture_file_name)
-// {
-//     assert(texture_file_name != nullptr);
-
-//     if (texture_file_name == NO_TEXTURE_REQUIRED)
-//     {
-//         update_surface();
-//     }
-//     else
-//     {
-//         // load texture...
-//     }
-// }
-
-// void Widget::update_surface() //deprecated
-// {
-//     surface_->surface_.clear(sf::Color::Transparent);
-//     output_certain_widget_form_();
-//     surface_->update();
-    
-//     sprite_.load_from_surface(surface_);
-//     sprite_.set_position(static_cast<float> (area_.get_x()), static_cast<float> (area_.get_y()));
-// }
-
-
 const Rectangle &Widget::get_area() const
 {
     return area_;
 }
+
+void Widget::move(const Point2d &offset)
+{
+    area_.set_x(area_.get_x() + offset.x);
+    area_.set_y(area_.get_y() + offset.y);
+    for (int child_index = 0; child_index < children_.size(); ++child_index)
+    {
+        children_[child_index]->move(offset);
+    }
+}
+
 const Point2d Widget::get_reference_point_for_event() const
 {
     return area_.get_top_left_corner_coords();
 }
 
 
-bool Widget::contains(const Point2d &point)
+bool Widget::contains(const Point2d &position)
 {
-    return hidden_ ? false : ignored_by_events_ ? false : area_.contains(point);
+    return hidden_ ? false : ignored_by_events_ ? false : area_.contains(position);
 }
 
 
@@ -248,10 +194,10 @@ EventHandlerState Widget::on_paint_event                (const Event *event)
 }
 
 
-void Widget::draw_frame_(const Color focused_color, const Color unfocused_color)
+void Widget::draw_frame_(const Color &focused_color, const Color &unfocused_color)
 {
-    surface_->draw_line({0,                      0}, {area_.get_width() - 1,                      0}, in_focus_ ? *FOCUSED_WIDGET_FRAME_COLOR : *UNFOCUSED_WIDGET_FRAME_COLOR);
-    surface_->draw_line({area_.get_width() - 1,  0}, {area_.get_width() - 1, area_.get_height() - 1}, in_focus_ ? *FOCUSED_WIDGET_FRAME_COLOR : *UNFOCUSED_WIDGET_FRAME_COLOR);
-    surface_->draw_line({1,                      0}, {0,                     area_.get_height() - 1}, in_focus_ ? *FOCUSED_WIDGET_FRAME_COLOR : *UNFOCUSED_WIDGET_FRAME_COLOR);
-    surface_->draw_line({0, area_.get_height() - 1}, {area_.get_width() - 1, area_.get_height() - 1}, in_focus_ ? *FOCUSED_WIDGET_FRAME_COLOR : *UNFOCUSED_WIDGET_FRAME_COLOR);
+    surface_->draw_line({0,                      0}, {area_.get_width(),                          0}, in_focus_ ? focused_color : unfocused_color);
+    surface_->draw_line({area_.get_width(),      0}, {area_.get_width(),     area_.get_height() - 1}, in_focus_ ? focused_color : unfocused_color);
+    surface_->draw_line({1,                      0}, {1,                     area_.get_height() - 1}, in_focus_ ? focused_color : unfocused_color);
+    surface_->draw_line({0, area_.get_height() - 1}, {area_.get_width() - 1, area_.get_height() - 1}, in_focus_ ? focused_color : unfocused_color);
 }

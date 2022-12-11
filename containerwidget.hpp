@@ -5,20 +5,21 @@
 #include "widget.hpp"
 
 
+static const Color *DEFAULT_CONTAINERWIDGET_BACKGROUND_COLOR = &SEA_GREEN;
+
+
 class ContainerWidget : public Widget
 {
 public:
-//-----------------------------------------------------------
-    ContainerWidget(const Rectangle &rectangle, Widget *parent = nullptr);
+//---------------------------------------------------------------------------------------
+    ContainerWidget(const Rectangle &rectangle, ContainerWidget *parent = nullptr);
 
     virtual ~ContainerWidget();
 
-    // void output_certain_widget_form_(Color color) override
-    // {} 
-
-//-----------------------------------------------------------
-
+//---------------------------------------------------------------------------------------
     virtual void set_event_manager(EventManager *event_manager) override;
+
+    EventManager *get_parent_event_manager();
 
     virtual EventHandlerState handle_event                  (const Event *event) override;
     virtual EventHandlerState on_mouse_button_pressed_event (const Event *event) override;
@@ -35,7 +36,9 @@ public:
     virtual EventHandlerState on_paint_event                (const Event *event) override;
 
 protected:
-//------------------------Variables--------------------------
+public:
+//------------------------Variables------------------------------------------------------
+    Color color_ = *DEFAULT_CONTAINERWIDGET_BACKGROUND_COLOR;
 
     EventManager event_manager_;
     EventManager *parent_manager_ = nullptr;

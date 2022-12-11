@@ -25,12 +25,12 @@ public:
 //-------------------------------------------------------------
     void emit(Args... args)
     {
-        //std::cout << "emit works!" << std::endl;
+        //std::cout << "slots size: " << slots_.size() << std::endl;
         for (int i = 0; i < slots_.size(); ++i)
         {
             std::pair cur_pair = slots_[i];
             if (cur_pair.first != nullptr)
-            {   //std::cout << "emit iter" << std::endl;
+            {
                 (cur_pair.first->*cur_pair.second)(args...);
             }
         }
@@ -39,7 +39,10 @@ public:
     template<class T>
     void connect(T *signal_object, void (T::*function)(Args...))
     {
-        slots_.push_back({static_cast<SignalObject *> (signal_object), static_cast<SigObjFunc> (function)});
+        //std::cout << "connect: " << std::endl;
+        //std::cout << "until: " << slots_.size() << std::endl;  
+        slots_.push_back(std::pair{static_cast<SignalObject *> (signal_object), static_cast<SigObjFunc> (function)});
+        //std::cout << "after: " << slots_.size() << std::endl;
     }
 
     template<class T>

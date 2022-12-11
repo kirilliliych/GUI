@@ -10,7 +10,6 @@ int main()
 {
     Application window_manager{};
     window_manager.execute();
-    
 
     return 0;
 }

@@ -177,16 +177,18 @@ class Event
 {
 public:
 //------------------------------------------------------------------
-
     Event()
       : type_(EventType::Error)
+    {}
+
+    ~Event()
     {}
 
 //------------------------------------------------------------------
 Point2d get_rel_point(const Point2d &point, const Rectangle &area)
 {
-    return Point2d{ point.get_x() - area.get_x(),
-                    point.get_y() - area.get_y()
+    return Point2d{point.x - area.get_x(),
+                   point.y - area.get_y()
                   };
 }
 //------------------------------------------------------------------

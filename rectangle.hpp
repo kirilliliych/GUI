@@ -26,22 +26,21 @@ public:
       : Rectangle(other.x_, other.y_, other.width_, other.height_)
     {}
 //------------------------------------------------------------------
-
     Point2d get_top_left_corner_coords() const
     {
         return Point2d{static_cast<float> (x_), static_cast<float> (y_)};
     }
     Point2d get_top_right_corner_coords() const
     {
-        return Point2d{static_cast<float> (x_ + width_), static_cast<float> (y_)};
+        return Point2d{static_cast<float> (x_ + width_ - 1), static_cast<float> (y_)};
     }
     Point2d get_bottom_left_corner_coords() const
     {
-        return Point2d{static_cast<float> (x_), static_cast<float> (y_ + height_)};
+        return Point2d{static_cast<float> (x_), static_cast<float> (y_ + height_ - 1)};
     }
     Point2d get_bottom_right_corner_coords() const
     {
-        return Point2d{static_cast<float> (x_ + width_), static_cast<float> (y_ + height_)};
+        return Point2d{static_cast<float> (x_ + width_ - 1), static_cast<float> (y_ + height_ - 1)};
     }
 
 
@@ -63,32 +62,34 @@ public:
     }
 
 
-    void set_x(unsigned x)
+    void set_x(int x)
     {
         x_ = x;
     }
-    void set_y(unsigned y)
+    void set_y(int y)
     {
         y_ = y;
     }
-    void set_width(unsigned width)
+    void set_width(int width)
     {
-        width_ = width;
+        width_  = width;
     }
-    void set_height(unsigned height)
+    void set_height(int height)
     {
         height_ = height;
     }
 
 
-    bool contains(const Point2d &point) const
+    bool contains(const Point2d &position) const
     {
-        return ((point.get_x() >= x_)          &&
-                (point.get_x() <= x_ + width_) &&
-                (point.get_y() >= y_)          &&
-                (point.get_y() <= y_ + height_));
+        return ((position.x >= x_)               &&
+                (position.x <= x_ + width_  - 1) &&
+                (position.y >= y_)               &&
+                (position.y <= y_ + height_ - 1));
     }
 
+
+//--------------------------Variables--------------------------------
 private:
 
     int x_ = 0;
@@ -96,7 +97,7 @@ private:
     int width_  = 0;
     int height_ = 0;
 };
-
+//-------------------------------------------------------------------
 
 sf::IntRect to_SFML_IntRect(const Rectangle &rectangle);
 

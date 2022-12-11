@@ -11,87 +11,89 @@
 
 class Point2d
 {
-private:
-    
-    float x_ = 0;
-    float y_ = 0;
-
 public:
+    
+    float x = 0;
+    float y = 0;
 
     Point2d(){}
 
     Point2d(float x, float y)
-      : x_(x),
-        y_(y)
+      : x(x),
+        y(y)
     {
-        assert(std::isfinite(x_));
-        assert(std::isfinite(y_));
+        assert(std::isfinite(x));
+        assert(std::isfinite(y));
     }
 
     Point2d(int x, int y)
       : Point2d((float) x, (float) y)
     {}
 
-    float get_x() const
+
+    bool operator ==(const Point2d &another_point) const
     {
-        return x_;
-    }
-    float get_y() const
-    {
-        return y_;
+        return ((x == another_point.x) && (y == another_point.y));
     }
 
-    void set_x(float x)
+    bool operator !=(const Point2d &another_point) const
     {
-        x_ = x;
-    }
-    void set_y(float y)
-    {
-        y_ = y;
+        return !(*this == another_point);
     }
 
-    void set_point2d(float x, float y)
+    bool operator <=(const Point2d &another_point) const
     {
-        assert(std::isfinite(x));
-        assert(std::isfinite(y));
-
-        x_ = x;
-        y_ = y;
+        return x == another_point.x ? y <= another_point.y : x <= another_point.x;
     }
 
-
-    void operator +=(const Point2d &another_vector)
+    bool operator <(const Point2d &another_point) const
     {
-        x_ += another_vector.x_;
-        y_ += another_vector.y_;
+        return x == another_point.x ? y <  another_point.y : x  < another_point.x;
     }
 
-    void operator -=(const Point2d &another_vector)
+    bool operator >=(const Point2d &another_point) const
     {
-        x_ -= another_vector.x_;
-        y_ -= another_vector.y_;
+        return x == another_point.x ? y >= another_point.y : x >= another_point.x;
     }
 
-    Point2d operator +(const Point2d &another_vector) const
+    bool operator >(const Point2d &another_point) const
+    {
+        return x == another_point.x ? y >  another_point.y : x >  another_point.x; 
+    }
+
+    void operator +=(const Point2d &another_point)
+    {
+        x += another_point.x;
+        y += another_point.y;
+    }
+
+    void operator -=(const Point2d &another_point)
+    {
+        x -= another_point.x;
+        y -= another_point.y;
+    }
+
+    Point2d operator +(const Point2d &another_point) const
     {
         Point2d result = *this;
-        result += another_vector;        
+        result += another_point;        
 
         return result;
     }
     
-    Point2d operator -(const Point2d &another_vector) const
+    Point2d operator -(const Point2d &another_point) const
     {
         Point2d result = *this;
-        result -= another_vector;
+        result -= another_point;
 
         return result;
     }
 
     Point2d operator -() const
     {
-        return {-x_, -y_};
+        return Point2d{-x, -y};
     }
+
 };
 
 #endif

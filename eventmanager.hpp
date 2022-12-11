@@ -6,9 +6,6 @@
 #include "event.hpp"
 
 
-const int MIN_EVENTS = 500;
-const int MAX_EVENTS = 1000;
-
 
 class Widget;
 
@@ -29,11 +26,7 @@ public:
 
     bool subscribe(Widget *subscriber);
 
-    // int register_new_event();
-
     void set_focused(Widget *widget);
-
-    int identif_ = 1488;
 //-----------------------------------------------------------------------
 private:
 
@@ -45,19 +38,16 @@ private:
                                      Widget *cur_widget,
                                      EventHandlerState (Widget::*function)(const Event *));
 
-    void reinterpret_event_positions_(Event *event, const Point2d &point);
-    void restore_event_positions_    (Event *event, const Point2d &point);
-
 //-------------------------------Variables--------------------------------
     std::vector<Widget *> widgets_pool_{};
     Widget *focused_ = nullptr;
     Widget *top_     = nullptr;
 
-    Point2d prev_mouse_position_ = {-1, -1};
-    Point2d reference_point_{0, 0};
+    Point2d prev_mouse_position_{-1, -1};
+    Point2d relative_point_{0, 0};
+public:
+    int identif = 0;
 //------------------------------------------------------------------------
-    //int new_events_quantity_ = MIN_EVENTS;
 };
-
 
 #endif

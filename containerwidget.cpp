@@ -1,15 +1,30 @@
 #include "containerwidget.hpp"
 
 
-ContainerWidget::ContainerWidget(const Rectangle &rectangle, Widget *parent)
+ContainerWidget::ContainerWidget(const Rectangle &rectangle, ContainerWidget *parent)
   : Widget(rectangle, parent),
     event_manager_(rectangle.get_top_left_corner_coords())
 {
-    std::cout << "init container_widget" << std::endl;
+    //std::cout << "ContainerWidget constructor" << std::endl;
+
     parent_manager_    = event_manager_ptr_;
     event_manager_ptr_ = &event_manager_;
-    //Widget::set_event_manager(&event_manager_);
-    //event_manager_.subscribe(this);
+    // //Widget::set_event_manager(&event_manager_);
+    // //event_manager_.subscribe(this);
+
+    // if (parent != nullptr)
+    // {
+    //     //std::cout << "container widget connnected to parent parent" << std::endl; 
+    //     parent_manager_ = parent->parent_manager_;
+    //     parent->parent_manager_->subscribe(this);
+    // }
+    // else
+    // {
+    //     parent_manager_ = event_manager_ptr_;
+    // }
+    // event_manager_ptr_ = &event_manager_;
+
+    //std::cout << "End of ContainerWidget constructor" << std::endl;
 }
 
 ContainerWidget::~ContainerWidget()
@@ -30,6 +45,12 @@ void ContainerWidget::set_event_manager(EventManager *event_manager)
     }
 }
 
+EventManager *ContainerWidget::get_parent_event_manager()
+{
+    return parent_manager_;
+}
+
+
 EventHandlerState ContainerWidget::handle_event                  (const Event *event)
 {
     assert(event != nullptr);
@@ -39,6 +60,8 @@ EventHandlerState ContainerWidget::handle_event                  (const Event *e
 EventHandlerState ContainerWidget::on_mouse_button_pressed_event (const Event *event)
 {
     assert(event != nullptr);
+    // std::cout << "containerwidget: event_manager_.identif_ " << event_manager_.identif_ << std::endl;
+    // std::cout << "containerwidget:on_mouse_button_pressed" << std::endl;
 
     return event_manager_.handle_event(const_cast<Event *> (event));
 }
@@ -106,12 +129,11 @@ EventHandlerState ContainerWidget::on_time_event                 (const Event *e
 
     return event_manager_.handle_event(const_cast<Event *> (event));
 }
-EventHandlerState ContainerWidget::on_paint_event                (const Event *event)           // begin called 100500 times because widget::on_paint_event is overwritten
-{                                                                                               // otherwise gets overwritten by window::on_paint_event
+EventHandlerState ContainerWidget::on_paint_event                (const Event *event)           
+{
     assert(event != nullptr);
 
-    // if (id_ != 1)
-    // std::cout << "containerwidget: on_paint_event" << std::endl;
+    //std::cout << "containerwidget: on_paint_event" << std::endl;
 
     return event_manager_.handle_event(const_cast<Event *> (event));
 }

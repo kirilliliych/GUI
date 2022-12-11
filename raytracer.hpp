@@ -30,20 +30,16 @@ public:
     ~Raytracer();
 //------------------------------------------------------------
 
-    //void init_surface(const char *texture_file_name = NO_TEXTURE_REQUIRED);
-
-    //void update_surface();
-
     EventHandlerState on_paint_event(const Event *event) override;
     
 //------------------------------------------------------------
-
 private:
 
     RaytracerRepaint raytracer_put_pixel_();
-    //void output_certain_widget_form_(Color color = {0x00000000}) override;
 
 //----------------------------Variables-----------------------
+    bool requires_repaint_ = true;
+
     Scene *scene_ = nullptr;
     Image *image_ = nullptr;
 

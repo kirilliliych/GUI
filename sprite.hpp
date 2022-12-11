@@ -39,12 +39,10 @@ public:
     
     void load_from_surface(const Surface *surface);
 
-    
-
 private:
 public:
 
-    sf::Sprite sprite_;                                                 // ALERT! default constructor was not used
+    sf::Sprite sprite_;
 };
 
 

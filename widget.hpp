@@ -18,10 +18,9 @@
 
 static const char *NO_TEXTURE_REQUIRED  = reinterpret_cast<const char *> (0xDEADDEAD);
  
-
-static const Color *FOCUSED_WIDGET_FRAME_COLOR   = &ORANGE; 
-static const Color *UNFOCUSED_WIDGET_FRAME_COLOR = &LIGHT_GREY;
-
+static const Color *FOCUSED_WIDGET_FRAME_COLOR          = &ORANGE; 
+static const Color *UNFOCUSED_WIDGET_FRAME_COLOR        = &LIGHT_GREY;
+static const Color FOCUSED_WIDGET_TEXTURE_HOVERED_COLOR = Color{0x00000060};
 
 class Widget : public SignalObject
 {
@@ -30,19 +29,7 @@ public:
 //-------------------Ctors, dtors...--------------------
 
     Widget(Widget *parent = nullptr);
-
     Widget(const Rectangle &rectangle, Widget *parent = nullptr);
-
-    // Widget(const Rectangle &rectangle, Surface *surface, Widget *parent = nullptr)
-    //   : Widget(rectangle, parent)
-    // {
-    //     delete surface_;
-
-    //     assert(surface != nullptr);
-    //     surface_ = surface;
-    // }
-
-    Widget(const Rectangle &rectangle, Surface *surface, Widget *parent = nullptr);
 
     Widget(const Widget &widget)             = delete;
     Widget &operator =(const Widget &widget) = delete;
@@ -55,18 +42,14 @@ public:
 
     void add_child(Widget *child);
 
-    void resize(int width, int height);
-
-    void render(Surface *surface);
-
-    // void init_surface  (const char *texture_file_name = NO_TEXTURE_REQUIRED);
-    // void update_surface();
+    virtual void render(Surface *surface);
 
     const Rectangle &get_area() const;
+    void move(const Point2d &offset);
 
 
     const Point2d get_reference_point_for_event() const;
-    virtual bool contains(const Point2d &point);
+    virtual bool contains(const Point2d &position);
 
     void show();
     void hide();
@@ -75,7 +58,7 @@ public:
     bool is_ignored_by_events() const;
 
 
-    virtual void update_on_time(){std::cout << "called empty update_on_time" << std::endl;}
+    virtual void update_on_time(){}
 
     virtual EventHandlerState handle_event                  (const Event *event);
     virtual EventHandlerState on_mouse_button_pressed_event (const Event *event);
@@ -92,23 +75,21 @@ public:
     virtual EventHandlerState on_paint_event                (const Event *event);
 
 
-    bool requires_repaint_  = true;
-
 protected:
-public:
+//public:
 
-    virtual void draw_frame_(const Color focused_color = MAGENTA, const Color unfocused_color = LIGHT_GREY);
-    // virtual void output_certain_widget_form_(Color color = Color{0x000000FF});
+    virtual void draw_frame_(const Color &focused_color = *FOCUSED_WIDGET_FRAME_COLOR, const Color &unfocused_color = *UNFOCUSED_WIDGET_FRAME_COLOR);
 
 //-------------------Variables----------------------------------------
     bool in_focus_          = false;
     bool hidden_            = false;
     bool ignored_by_events_ = false;
+    bool has_texture_       = false;
 
     EventManager *event_manager_ptr_ = nullptr;
     Rectangle area_{};
     Surface *surface_ = nullptr;
-    Sprite sprite_{};
+    Texture *skin_    = nullptr;
 
     std::chrono::system_clock::time_point timer_{};
 
@@ -116,7 +97,7 @@ public:
     std::vector<Widget *> children_{};
 
 public:
-    int id_ = 0;                            // convenient for debug
+    int id_ = 0;                            // for debug
 };
 
 #endif

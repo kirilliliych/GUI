@@ -16,13 +16,13 @@ void Scene::fill_scene(const unsigned raytracer_width, const unsigned raytracer_
     Sphere *right_plane  = new Sphere{ 990.0,    0.0,     0.0,  970.0, MATTE, ORANGE,  false};
     Sphere *bottom_plane = new Sphere{   0.0, -990.0,     0.0,  990.0, MATTE, CRIMSON, false};
     Sphere *top_plane    = new Sphere{   0.0, 1000.0,     0.0,  980.0, MATTE, YELLOW,  false};
-    //Sphere back_plane  {   0.0,    0.0,  1000.0,  980.0, MATTE, TOMATO,  false};
+
     spheres_.add(front_plane);
     spheres_.add(left_plane);
     spheres_.add(right_plane);
     spheres_.add(bottom_plane);
     spheres_.add(top_plane);
-    //spheres.add(&back_plane);
+    
     Sphere *ball1 = new Sphere{ -1.0,  10.0,  -5.0, 1.0, MIRROR, GREEN,      false};
     Sphere *ball2 = new Sphere{  5.0,  12.0,  -7.0, 3.0, MIRROR, YELLOW,     false};
     Sphere *ball3 = new Sphere{-10.0,   5.0, -17.0, 5.0, MIRROR, TOMATO,     false};

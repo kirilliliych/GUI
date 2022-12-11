@@ -1,52 +1,71 @@
 #include "image.hpp"
 
 
-Image::Image(unsigned width, unsigned height, Color color)
+Image::Image()
+{}
+
+Image::Image(int width, int height, const Color &color)
 {
     create(width, height, color);
-    //std::cout << "image constructor called" << std::endl;
 }
 
-void Image::create(unsigned width, unsigned height, Color color)
+Image::Image(const char *file_name)
+{
+    assert(file_name != nullptr);
+
+    load_from_file(file_name);
+
+    sf::Vector2u size = image_.getSize();
+    width_  = size.x;
+    height_ = size.y;
+}
+
+
+void Image::create(int width, int height, const Color &color)
 {
     width_  = width;
     height_ = height;
 
     image_.create(width, height, color.get_color_ref());
-
-    //std::cout << "image was created" << std::endl;
 }
 
-void Image::set_pixel(unsigned x_coord, unsigned y_coord, Color color)
+bool Image::is_created() const
+{
+    return image_.getSize() != sf::Vector2u{0, 0};
+}
+
+bool Image::load_from_file(const char *file_name)
+{
+    assert(file_name != nullptr);
+
+    return image_.loadFromFile(file_name);
+}
+
+Color Image::get_pixel(int x_coord, int y_coord)
+{
+    sf::Color result = image_.getPixel(static_cast<unsigned> (x_coord), 
+                                       static_cast<unsigned> (y_coord));
+
+    return Color{result.toInteger()};
+}
+
+void Image::set_pixel(int x_coord, int y_coord, Color color)
 {
     image_.setPixel(x_coord, y_coord, color.get_color_ref());
 }
 
-// void Image::render(const Camera &camera, const SphereArr &spheres)
-// {
-//     for (int y_pos = 0; y_pos < height_; ++y_pos)
-//     {
-//         for (int x_pos = 0; x_pos < width_; ++x_pos)
-//         {
-//             Vector3d congregated_color{0, 0, 0};
-//             for (int pixel_processing_num = 0; pixel_processing_num < ANTI_ALIASING_PROCESSING_PER_PIXEL; ++pixel_processing_num)        // LEGACY CODE
-//             {
-//                 float x_viewport_pos = (get_random_fractional_float() + x_pos) / (width_  - 1);
-//                 float y_viewport_pos = (get_random_fractional_float() + y_pos) / (height_ - 1);
+int Image::get_width() const
+{
+    return width_;
+}
 
-//                 congregated_color += color_to_vector(get_ray_color(camera.get_ray(x_viewport_pos, y_viewport_pos), 
-//                                                      spheres, 
-//                                                      MAX_RAY_COLOR_RECURSION_DEPTH));
-//             }
+int Image::get_height() const
+{
+    return height_;
+}
 
-//             Color result_color = vector_to_color(congregated_color / ANTI_ALIASING_PROCESSING_PER_PIXEL);
 
-//             set_pixel(x_pos, y_pos, result_color.gamma_correction(GAMMA_CORRECTION_COEF));
-//         }
-//     }
-// }
-
-void Image::render_pixel(const Camera &camera, const SphereArr &spheres, unsigned x, unsigned y)
+void Image::render_pixel(const Camera &camera, const SphereArr &spheres, int x, int y)
 {
     Vector3d congregated_color{0, 0, 0};
     for (int pixel_processing_num = 0; pixel_processing_num < ANTI_ALIASING_PROCESSING_PER_PIXEL; ++pixel_processing_num)

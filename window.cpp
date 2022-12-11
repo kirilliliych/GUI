@@ -1,8 +1,8 @@
 #include "window.hpp"
 
 
-Window::Window(unsigned width, 
-               unsigned height,
+Window::Window(int width, 
+               int height,
                const char *name)
   : width_ (width),
     height_(height),
@@ -11,8 +11,8 @@ Window::Window(unsigned width,
     assert(name != nullptr);
 }
 
-void Window::create(unsigned width,
-                    unsigned height,
+void Window::create(int width,
+                    int height,
                     const char *name)
 {
     assert(name != nullptr);
@@ -176,45 +176,3 @@ bool Window::poll_event(Event &event)
     return false;
 }
 
-
-// void Window::update_on_time()
-// {
-//     Event event{};
-//     while (poll_event(event))
-//     {
-//         handle_event(&event);
-
-//     }
-// }
-
-
-// void Window::output_certain_widget_form_(Color color)
-// {
-//     surface_->clear(0);
-//     surface_->draw_rectangle(area_, color);
-//     surface_->update();
-// }
-
-
-// EventHandlerState Window::on_paint_event(const Event *event)
-// {
-//     assert(event != nullptr);
-
-//     return ContainerWidget::on_paint_event(event);
-
-//     if (!requires_repaint_)
-//     {
-//         return EventHandlerState::Accepted;
-//     }
-
-//     return ContainerWidget::on_paint_event(event);
-
-//     surface_->clear(0);
-//     surface_->draw_rectangle(area_, WHITE);
-//     //output_certain_widget_form_();
-//     sprite_.load_from_surface(surface_);
-//     sprite_.set_position(area_.get_x(), area_.get_y());
-//     requires_repaint_ = false;
-
-//     return event_manager_.handle_event(const_cast<Event *> (event));
-// }

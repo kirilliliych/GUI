@@ -1,5 +1,6 @@
 #include "sprite.hpp"
 
+
 Sprite::Sprite(const Texture &texture)
   : sprite_{sf::Sprite(texture.texture_)}
 {}
@@ -27,7 +28,7 @@ void Sprite::set_texture_rect(const Rectangle &rectangle)
 
 void Sprite::set_position(Point2d position)
 {
-    set_position(position.get_x(), position.get_y());
+    set_position(position.x, position.y);
 }
 void Sprite::set_position(float x, float y)
 {
@@ -35,13 +36,11 @@ void Sprite::set_position(float x, float y)
     assert(std::isfinite(y));
 
     sprite_.setPosition(sf::Vector2f{x, y});
-    // std::cout << "sprite position set to " << x << " " << y << std::endl;
-    // std::cout << __FILE__ << " " << __LINE__ << std::endl;
 }
 
 void Sprite::set_origin(Point2d origin)
 {
-    set_origin(origin.get_x(), origin.get_y());
+    set_origin(origin.x, origin.y);
 }
 void Sprite::set_origin(float x, float y)
 {
@@ -49,8 +48,6 @@ void Sprite::set_origin(float x, float y)
     assert(std::isfinite(y));
 
     sprite_.setOrigin(sf::Vector2f{x, y});
-    // std::cout << "sprite origin set to " << x << " " << y << std::endl;
-    // std::cout << __FILE__ << " " << __LINE__ << std::endl;
 }
 
 void Sprite::load_from_surface(const Surface *surface)

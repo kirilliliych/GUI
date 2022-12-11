@@ -13,7 +13,7 @@ bool Surface::create(int width, int height)
     return surface_.create(width, height);
 }
 
-void Surface::clear(Color color)
+void Surface::clear(const Color &color)
 {
     surface_.clear(sf::Color(color.get_uint32_color()));
 }
@@ -27,8 +27,8 @@ void Surface::update()
 void Surface::draw_line(const Point2d &point1, const Point2d &point2, const Color color)
 {
     sf::Vertex vertices[2] = {};
-    vertices[0].position = sf::Vector2f{point1.get_x(), point1.get_y()};
-    vertices[1].position = sf::Vector2f{point2.get_x(), point2.get_y()};
+    vertices[0].position = sf::Vector2f{point1.x, point1.y};
+    vertices[1].position = sf::Vector2f{point2.x, point2.y};
 
     vertices[0].color = vertices[1].color = sf::Color{color.get_uint32_color()};
 
@@ -51,7 +51,6 @@ void Surface::draw_rectangle(const Rectangle &rectangle, const Color color)
     update();
 }
 
-//void Surface::draw_frame(const Rec)
 
 void Surface::draw_image(const Image &image)
 {
@@ -67,26 +66,6 @@ void Surface::draw_image(const Image &image)
     update();
 }
 
-// void Surface::draw_surface(const Point2d &at, const Surface &surface, const Rectangle &rectangle)               // not tested
-// {
-//     sf::Sprite temp_sprite(surface.get_texture().texture_);
-//     temp_sprite.setPosition(sf::Vector2f{at.get_x(), at.get_y()});
-//     if ((rectangle.get_x()      == 0) &&
-//         (rectangle.get_y()      == 0) &&
-//         (rectangle.get_width()  == 0) &&
-//         (rectangle.get_height() == 0))
-//     {
-//         temp_sprite.setTextureRect(sf::IntRect{static_cast<int> (rectangle.get_x()),
-//                                                static_cast<int> (rectangle.get_y()),
-//                                                static_cast<int> (rectangle.get_width()),
-//                                                static_cast<int> (rectangle.get_height())
-//                                               });
-//     }
-
-//     surface_.draw(temp_sprite);
-
-//     update();
-// }
 
 void Surface::draw_sprite(const Sprite &sprite)
 {
@@ -97,31 +76,15 @@ void Surface::draw_sprite(const Sprite &sprite)
 
 void Surface::draw_text(const Text &text)
 {
-    // std::cout << "drawing text to surface" << std::endl;
-    // Color text_color = text.get_color();
-    // text_color.make_transparent();
-    // printf("text background color: %x\n", text_color.get_uint32_color());
-    // draw_rectangle(text.get_area(), text_color);
-
     surface_.draw(text.text_);
-
-    // sf::Image img = surface_.getTexture().copyToImage();
-    // img.createMaskFromColor(sf::Color{0xFFFF00FF});
-    // sf::Texture txt{};
-    // txt.loadFromImage(img);
-    // sf::Sprite spr{};
-    // spr.setTexture(txt);
-    // surface_.draw(spr);
     
     update();
-    
 }
 
 const Texture &Surface::get_texture() const
 {
     return surface_texture_;
 }
-
 
 
 void Surface::update_texture_()

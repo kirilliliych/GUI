@@ -31,7 +31,7 @@ public:
 
     bool create(int width, int height);
 
-    void clear(Color color = Color{0x000000FF});
+    void clear(const Color &color = Color{0x000000FF});
 
     void update();
 
@@ -53,10 +53,13 @@ public:
 
 private:
 public:
+
     void update_texture_();
 
+//---------------------Variables---------------------------
     sf::RenderTexture surface_{};
     Texture           surface_texture_{};
+//---------------------------------------------------------
 };
 
 

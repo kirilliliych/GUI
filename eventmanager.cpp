@@ -2,7 +2,9 @@
 #include "widget.hpp"
 
 
-EventManager::EventManager(const Point2d &reference_point){}
+EventManager::EventManager(const Point2d &relative_point)
+  : relative_point_(relative_point)
+{}
 
 EventManager::~EventManager(){}
 
@@ -22,17 +24,16 @@ EventHandlerState EventManager::handle_event(Event *event)
 
         case EventType::MouseButtonPressed:
         {
-            std::cout << "HANDLING MOUSE_BUTTON_PRESSED" << std::endl;
-            std::cout << "click_position: " << event->mbedata_.position.get_x() << " " << event->mbedata_.position.get_y() << std::endl;
-            std::cout << "widgets_pool_size " << widgets_pool_.size() << std::endl;
+            //std::cout << "HANDLING MOUSE_BUTTON_PRESSED" << std::endl;
+            //std::cout << "identif: " << identif_ << std::endl;
+            //std::cout << "click_position: " << event->mbedata_.position.x << " " << event->mbedata_.position.y << std::endl;
+            //std::cout << "widgets_pool_size " << widgets_pool_.size() << std::endl;
             for (int i = widgets_pool_.size() - 1; i >= 0; --i)
             {
                 Widget *cur_widget = widgets_pool_[i];
-                std::cout << "cur_widget_area: " << cur_widget->area_.get_x() << " " << cur_widget->area_.get_y() << " " << cur_widget->area_.get_width() << " " << cur_widget->area_.get_height() << std::endl;
-
                 if (cur_widget->contains(event->mbedata_.position))
                 {
-                    std::cout << "clicked on" << cur_widget->id_ << std::endl;
+                    // std::cout << "clicked on" << cur_widget->id_ << std::endl;
                     EventHandlerState event_result = process_event_(event, cur_widget, &Widget::on_mouse_button_pressed_event);
                     if (event_result == EventHandlerState::Accepted)
                     {
@@ -57,7 +58,7 @@ EventHandlerState EventManager::handle_event(Event *event)
 
         case EventType::MouseButtonReleased:
         {
-            std::cout << "HANDLING MOUSE_BUTTON_RELEASED" << std::endl;
+            //std::cout << "HANDLING MOUSE_BUTTON_RELEASED" << std::endl;
 
             if (focused_ != nullptr)
             {
@@ -76,6 +77,13 @@ EventHandlerState EventManager::handle_event(Event *event)
                     continue;
                 }
 
+                //Rectangle cur_widget_area = cur_widget->get_area();
+                // cur_widget_area.set_x(0);
+                // cur_widget_area.set_y(0);
+                // Rectangle cur_widget_area = cur_widget->get_area();
+                // cur_widget_area.set_x(cur_widget_area.get_x() - reference_point_.x);
+                // cur_widget_area.set_y(cur_widget_area.get_y() - reference_point_.y);
+                // if (cur_widget_area.contains(event->mbedata_.position) && (!cur_widget->is_hidden()) && (!cur_widget->is_ignored_by_events()))
                 if (cur_widget->contains(event->mbedata_.position))
                 {
                     EventHandlerState event_result = process_event_(event, cur_widget, &Widget::on_mouse_button_released_event);
@@ -91,13 +99,23 @@ EventHandlerState EventManager::handle_event(Event *event)
 
         case EventType::MouseMoved:
         {
-            std::cout << "HANDLING MOUSE_MOVED" << std::endl;
-            std::cout << "event_manager identificator " << identif_ << std::endl;
-            std::cout << "widget_pool_size: " << widgets_pool_.size() << std::endl;
+            // std::cout << "HANDLING MOUSE_MOVED" << std::endl;
+            //std::cout << "event_manager identificator " << identif_ << std::endl;
+            //std::cout << "widget_pool_size: " << widgets_pool_.size() << std::endl;
             Widget *cur_top = nullptr;
             for (int i = widgets_pool_.size() - 1; i >= 0; --i)
             {
                 Widget *cur_widget = widgets_pool_[i];
+                // Rectangle cur_widget_area = cur_widget->get_area();
+                // cur_widget_area.set_x(0);
+                // cur_widget_area.set_y(0);
+                
+                // std::cout << "cur_widget_area: x" << cur_widget_area.get_x() << " y " << cur_widget_area.get_y() << " w " << cur_widget_area.get_width() << " h " << cur_widget_area.get_height() << std::endl;
+                // std::cout << "mmedatapos: x " << event->mmedata_.position.x << " y " << event->mmedata_.position.y << std::endl;
+                // Rectangle cur_widget_area = cur_widget->get_area();
+                // cur_widget_area.set_x(cur_widget_area.get_x() - reference_point_.x);
+                // cur_widget_area.set_y(cur_widget_area.get_y() - reference_point_.y);
+                // if (cur_widget_area.contains(event->mbedata_.position) && (!cur_widget->is_hidden()) && (!cur_widget->is_ignored_by_events()))
                 if (cur_widget->contains(event->mmedata_.position))
                 {
                     cur_top = cur_widget;
@@ -140,18 +158,12 @@ EventHandlerState EventManager::handle_event(Event *event)
 
         case EventType::MouseWheelScrolled:
         {
-            std::cout << "MOUSE_WHEEL_SCROLLED" << std::endl;
-
             for (int i = widgets_pool_.size() - 1; i >= 0; --i)
             {
                 Widget *cur_widget = widgets_pool_[i];
                 if (!cur_widget->is_hidden())
                 {
                     EventHandlerState event_result = process_event_(event, cur_widget, &Widget::on_mouse_scrolled_event);
-                    // Point2d cur_widget_ref_point = cur_widget->get_reference_point_for_event();
-                    // reinterpret_event_positions_(event, cur_widget_ref_point);
-                    // EventHandlerState event_result = cur_widget->on_mouse_moved_event(event); //mistake?
-                    // restore_event_positions_(event, cur_widget_ref_point);
 
                     if (event_result == EventHandlerState::Accepted)
                     {
@@ -165,8 +177,6 @@ EventHandlerState EventManager::handle_event(Event *event)
 
         case EventType::KeyPressed:
         {
-            std::cout << "KEY_PRESSED" << std::endl;
-
             if ((focused_ != nullptr) && (focused_->on_key_pressed_event(event) == EventHandlerState::Accepted))
             {
                 return EventHandlerState::Accepted;
@@ -177,9 +187,12 @@ EventHandlerState EventManager::handle_event(Event *event)
 
         case EventType::KeyReleased:
         {
-            std::cout << "KEY_RELEASED" << std::endl;
             if ((focused_ != nullptr) && (focused_->on_key_released_event(event) == EventHandlerState::Accepted))
             {
+                // if (focused_->id_ == 25)
+                // {
+                //     std::cout << "ALARM KEY-RELEASED ID 25\n";
+                // }
                 return EventHandlerState::Accepted;
             }
 
@@ -188,19 +201,16 @@ EventHandlerState EventManager::handle_event(Event *event)
 
         case EventType::TimerTicked:
         {
-            //std::cout << "event_manager idenf: " << identif_ << " timer_ticked" << std::endl;
             return spread_event_(event, &Widget::on_time_event, true);
         }
 
         case EventType::Paint:
         {
-            //std::cout << "case eventtype::paint" << std::endl;
             return spread_event_(event, &Widget::on_paint_event, true);
         }
 
         default:
         {
-            //std::cout << "did not recognise event_type " << std::endl;
             spread_event_(event, &Widget::handle_event);
 
             break;
@@ -219,18 +229,6 @@ bool EventManager::subscribe(Widget *subscriber)
     return true;
 }
 
-// int EventManager::register_new_event()
-// {
-//     if (new_events_quantity_ > MAX_EVENTS)
-//     {
-//         return -1;
-//     }
-
-//     ++new_events_quantity_;
-
-//     return new_events_quantity_;
-// }
-
 
 void EventManager::set_focused(Widget *widget)
 {
@@ -240,69 +238,6 @@ void EventManager::set_focused(Widget *widget)
 }
 
 
-
-void EventManager::reinterpret_event_positions_(Event *event, const Point2d &point)                     // copypaste?
-{
-    switch (event->type_)
-    {
-        case EventType::MouseButtonPressed:
-        case EventType::MouseButtonReleased:
-        {
-            event->mbedata_.position -= point - reference_point_;
-
-            break;
-        }
-        case EventType::MouseMoved:
-        {   
-            event->mmedata_.position -= point - reference_point_;
-
-            break;
-        }
-        case EventType::MouseWheelScrolled:
-        {
-            event->mwedata_.position -= point - reference_point_;
-            
-            break;
-        }
-
-        default:
-        {
-            break;
-        }
-    }
-}
-
-void EventManager::restore_event_positions_(Event *event, const Point2d &point)                         // copypaste?
-{
-    switch (event->type_)
-    {
-        case EventType::MouseButtonPressed:
-        case EventType::MouseButtonReleased:
-        {
-            event->mbedata_.position += point - reference_point_;
-
-            break;
-        }
-        case EventType::MouseMoved:
-        {   
-            event->mmedata_.position += point - reference_point_;
-
-            break;
-        }
-        case EventType::MouseWheelScrolled:
-        {
-            event->mwedata_.position += point - reference_point_;
-            
-            break;
-        }
-
-        default:
-        {
-            break;
-        }
-    }
-}
-
 EventHandlerState EventManager::spread_event_(const Event *event, 
                                               EventHandlerState (Widget::*function)(const Event *), 
                                               bool unconditional) const
@@ -310,15 +245,18 @@ EventHandlerState EventManager::spread_event_(const Event *event,
     assert(event    != nullptr);
     assert(function != nullptr);
 
-    //std::cout << "called spread_event_" << std::endl;
-
     for (size_t i = 0; i < widgets_pool_.size(); ++i)
     {
         Widget* cur_widget = widgets_pool_[i];
-        //std::cout << "be4 call " << __LINE__  << " " << __FILE__ << std::endl;
+        // if ((cur_widget->id_ == 25) && (event->type_ == EventType::KeyReleased))
+        // {
+        //     std::cout << "ALARM SPREAD EVENT ID IS 25 AND KEY_RELEASED\n";
+        // }
+       // std::cout << "spread_event_: cur_widget id: " << cur_widget->id_ << std::endl;
+        //std::cout << "spread_event_:" << __LINE__  << " " << __FILE__ << std::endl;
         //printf("pointer to spread_event_function: %\p\n", function);
         EventHandlerState event_result = (cur_widget->*function)(event);
-        //std::cout << "a4ter call " << __LINE__  << " " << __FILE__ << std::endl;
+        //std::cout << "spread_event_: a4ter call " << __LINE__  << " " << __FILE__ << std::endl;
         if (!unconditional && event_result == EventHandlerState::Accepted)
         {
             return event_result;
@@ -337,10 +275,7 @@ EventHandlerState EventManager::process_event_(Event  *event,
     assert(cur_widget != nullptr);
     assert(function   != nullptr);
 
-    Point2d cur_widget_ref_point = cur_widget->get_reference_point_for_event();
-    reinterpret_event_positions_(event, cur_widget_ref_point);
     EventHandlerState event_result = (cur_widget->*function)(event);
-    restore_event_positions_(event, cur_widget_ref_point);
 
     return event_result;
 }

@@ -11,6 +11,7 @@
 
 static const Color *DEFAULT_BUTTON_COLOR          = &LIGHT_GREY;
 static const Color *DEFAULT_BUTTON_HOVERING_COLOR = &GREY;
+static const Color *DEFAULT_BUTTON_PRESSED_COLOR  = &RED;
 
 
 class Button : public Widget
@@ -25,23 +26,27 @@ public:
                                    rectangle.get_width(),
                                    rectangle.get_height() - 2 * text_vertical_offset_
                                   }, this)),
-        named_(true)
+        is_named_(true)
     {
+        //std::cout << "Button constructor: " << std::endl;
         text_.make_ignored_by_events();
 
         id_ = 2;
-        std::cout << "id: " << id_ << std::endl;
-        //init_surface();
+        //std::cout << "id: " << id_ << std::endl;
+
+        //std::cout << "end of Button constructor " << std::endl;
     }
 
     Button(const Rectangle &rectangle, Widget *parent = nullptr)
       : Button(rectangle, "", parent)
     {
+        //std::cout << "Button constructor" << std::endl;
         text_.make_ignored_by_events();
 
         id_ = 2;
-        std::cout << "id: " << id_ << std::endl;
-        //init_surface();
+        //std::cout << "id: " << id_ << std::endl;
+
+        //std::cout << "end of Button constructor " << std::endl;
     }
 
     virtual ~Button(){}
@@ -56,32 +61,50 @@ public:
     {
         text_.set_color(color);
 
-        requires_repaint_ = true;
+        text_.requires_repaint_ = true;
     }
 
     void set_text(const char *text)
     {
         text_.set_string(text);
 
-        requires_repaint_ = true;
+        text_.requires_repaint_ = true;
     }
 
     void set_character_size(unsigned int size)
     {
         text_.set_character_size(size);
 
-        requires_repaint_ = true;
+        text_.requires_repaint_ = true;
     }
 
+    void set_font(const char *font_name = DEFAULT_FONT_NAME)
+    {
+        assert(font_name != nullptr);
+
+        text_.set_font(font_name);
+
+        text_.requires_repaint_ = true;
+    }
+
+    void center_text()
+    {
+        if (is_named_)
+        {
+            text_.center_text();
+        }
+    }
     
     EventHandlerState on_mouse_button_pressed_event(const Event *event) override
     {
         assert(event != nullptr);
-
+        std::cout << "button: on_mouse_button_pressed_event x "<< event->mbedata_.position.x << " y " << event->mbedata_.position.y << std::endl;
         if (event->mbedata_.button == MouseButton::Left)
         {
-            pressed_          = true;
+            is_pressed_          = true;
+            //std::cout << "button:on_mouse_button_pressed_event before pressed_emit" << std::endl;
             pressed.emit();
+            //std::cout << "button:on_mouse_button_pressed_event after pressed_emit" << std::endl;
             requires_repaint_ = true;
 
             return EventHandlerState::Accepted;
@@ -94,16 +117,17 @@ public:
     {
         assert(event != nullptr);
 
-        if (pressed_ && event->mbedata_.button == MouseButton::Left)
+        if (is_pressed_ && event->mbedata_.button == MouseButton::Left)
         {
             released.emit();
-            if (Rectangle{0, 0, area_.get_width(), area_.get_height()}.contains(event->mbedata_.position))
+            if (area_.contains(event->mbedata_.position))
             {
+                //std::cout << "button:on_mouse_button_released_event before clicked_emit" << std::endl;  
                 clicked.emit();
-                //std::cout << "after clickedemit" << std::endl;
+                //std::cout << "button:on_mouse_button_released_event after clicked_emit" << std::endl;
             }
 
-            pressed_          = false;
+            is_pressed_       = false;
             requires_repaint_ = true;
 
             return EventHandlerState::Accepted;
@@ -115,9 +139,14 @@ public:
     EventHandlerState on_mouse_entered_event(const Event *event) override
     {
         assert(event != nullptr);
-
-        hovered_          = true;
+        is_hovered_       = true;
+        if (is_named_)
+        {
+            text_.set_hovered(true);
+        }
         requires_repaint_ = true;
+
+        mouse_entered.emit();   // meme
 
         return EventHandlerState::Accepted;
     }
@@ -126,7 +155,11 @@ public:
     {
         assert(event != nullptr);
 
-        hovered_          = false;
+        is_hovered_       = false;
+        if (is_named_)
+        {
+            text_.set_hovered(false);
+        }
         requires_repaint_ = true;
 
         return EventHandlerState::Accepted;
@@ -147,12 +180,18 @@ public:
     {
         assert(event != nullptr);
 
-        hovered_          = false;
-        if (pressed_)
+        is_hovered_       = false;
+        if (is_named_)
         {
-            released.emit();
+            text_.set_hovered(false);
         }
-        pressed_          = false;
+        if (is_pressed_)
+        {
+            //std::cout << "button:on_lost_focus_event before released_emit" << std::endl;
+            released.emit();
+            //std::cout << "button:on_lost_focus_event after released_emit" << std::endl;
+        }
+        is_pressed_       = false;
         requires_repaint_ = true;
         
         Widget::on_lost_focus_event(event);
@@ -160,32 +199,27 @@ public:
         return EventHandlerState::Accepted;
     }
 
-//-----------------------------------------------------------------
+//---------------------------------------------------------------------------------------
 protected:
-
-    // void output_certain_widget_form_(Color color = DEFAULT_BUTTON_COLOR) override
-    // {   
-    //     std::cout << "called button output_certain_widget_form" << std::endl; 
-    //     surface_->clear(0);
-    //     surface_->draw_rectangle(area_, color);
-    //     surface_->update();
-    // }
-//-----------------------Variables------------------------------
+//public:
+//-----------------------Variables-------------------------------------------------------
 
     int text_vertical_offset_   = 3;
 
     Text text_;
-    bool pressed_  = false;
-    bool hovered_  = false;
-    bool named_    = false;
+    bool is_pressed_  = false;
+    bool is_hovered_  = false;
+    bool is_named_    = false;
+    bool requires_repaint_ = true;
 
 public:
 
     Signal<> clicked;
     Signal<> pressed;
     Signal<> released;
-    
-//--------------------------------------------------------------
+
+    Signal<> mouse_entered;     // meme
+//---------------------------------------------------------------------------------------
 };
 
 
@@ -224,7 +258,6 @@ public:
     void set_color(Color color)
     {
         color_ = color;
-        //update_surface();
         requires_repaint_ = true;
     }
 
@@ -238,13 +271,11 @@ public:
             return EventHandlerState::Accepted;
         }
 
-        Color *to_paint = hovered_ ? &hovering_color_ : &color_;
+        const Color *to_paint = is_hovered_ ? &hovering_color_ : &color_;
+        surface_->clear(0);
         surface_->draw_rectangle(area_, *to_paint);
         
         draw_frame_();
-    
-        // sprite_.load_from_surface(surface_);
-        // sprite_.set_position(area_.get_x(), area_.get_y());
 
         requires_repaint_ = false;
 
@@ -252,12 +283,11 @@ public:
     }
 //---------------------------------------------------------------------------------------
 private:
-public:
-//------------------------Variables------------------------------------------------------
-
+//public:
+//-----------------------------------Variables-------------------------------------------
     Color color_{*DEFAULT_BUTTON_COLOR};
     Color hovering_color_{*DEFAULT_BUTTON_HOVERING_COLOR};
-};
 //---------------------------------------------------------------------------------------
+};
 
 #endif

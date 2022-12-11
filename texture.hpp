@@ -9,10 +9,13 @@
 #include <iostream>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include "image.hpp"
 
 
 class Surface;
 class Sprite;
+class Image;
+
 
 class Texture
 {
@@ -20,39 +23,23 @@ class Texture
     friend Sprite;
 
 public:
-//-------------Ctor, dtor...-------------------    
-    Texture(){}
+//-----------------------------------------------------
+    Texture();
 
-    Texture(const char *file_name)
-    {
-        assert(file_name != nullptr);
+    Texture(const char *file_name);
 
-        load_from_file(file_name);
-    }
+    ~Texture();
+//-----------------------------------------------------
+    bool load_from_file(const char *file_name);
 
-    ~Texture(){}
-//-------------Functions-----------------------
+    bool load_from_image(const Image &image);
 
-bool load_from_file(const char *file_name)
-{
-    return texture_.loadFromFile(file_name);
-}
+    void set_repeated(bool is_repeated);
 
-void set_repeated(bool is_repeated)
-{
-    texture_.setRepeated(is_repeated);
-}
-
-
-Texture &operator =(const Texture &other_texture)
-{
-    *this = other_texture;
-
-    return *this;
-}
-
+    Texture &operator =(const Texture &other_texture);
+//---------------------Variables-----------------------
 private:
-    
+//public:
     sf::Texture texture_{};
 };
 
