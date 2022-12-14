@@ -26,20 +26,21 @@ class Surface;
 class Texture;
 
 
-class Image
+
+class ImageSf
 {
     friend Surface;
     friend Texture;
 
 public:
 //----------------------------------------------------------------------------------
-    Image();
+    ImageSf();
 
-    Image(int width, int height, const Color &color = WHITE);
+    ImageSf(int width, int height, const Color &color = WHITE);
 
-    Image(const char *file_name);
+    ImageSf(const char *file_name);
 
-   ~Image() = default;
+    ~ImageSf() = default;
 //----------------------------------------------------------------------------------
     void create(int width, int height, const Color &color = WHITE);
 
@@ -63,8 +64,6 @@ private:
     int height_ = 0;
 
     sf::Image image_{};
-
-
 };
 
 #endif

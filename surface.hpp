@@ -39,14 +39,17 @@ public:
 
     void draw_rectangle(const Rectangle &rectangle, Color color);
 
-    void draw_image(const Image &image);
-
-    void draw_surface(const Point2d &at, const Surface &surface, const Rectangle &rectangle = Rectangle{0, 0, 0, 0});
+    void draw_image(const ImageSf &image);
 
     void draw_sprite(const Sprite &sprite);
 
+    void draw_sprite(const Point2d &start, const Sprite &sprite);
+
     void draw_text(const Text &text);
 
+    void draw_point(const Point2d &point, const Color &color);
+
+    Point2d get_size() const;
 
     const Texture &get_texture() const;
     

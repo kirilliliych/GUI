@@ -4,23 +4,13 @@
 Menubar::Menubar(const Rectangle &rectangle,
                  Color background_color, ContainerWidget *parent)
   : ContainerWidget(rectangle, parent)
-{
-    //std::cout << "menubar initialized" << std::endl;
-    id_ = 5;
-    //std::cout << "id: " << id_ << std::endl;
-    //event_manager_.identif_ = 1337;
-}
+{}
 
 
 Menubar::Menubar(int x, int y, int width, int height, 
                  Color background_color, ContainerWidget *parent)
   : Menubar(Rectangle{x, y, width, height}, background_color, parent)
-{
-    //std::cout << "menubar initialized" << std::endl;
-    id_ = 5;
-    //std::cout << "id: " << id_ << std::endl;
-    //event_manager_.identif_ = 1337;
-}
+{}
 
 Menubar::~Menubar()
 {
@@ -36,8 +26,6 @@ void Menubar::add_new_menu(const char *name)
 {
     assert(name != nullptr);
 
-    //int new_menu_x_coord = menus_.empty() ? 0 : menus_.back()->get_area().get_top_right_corner_coords().x;
-    //Rectangle new_menu_area{new_menu_x_coord, 0, DEFAULT_MENUBAR_BUTTON_WIDTH, area_.get_height()};
     int new_menu_x_coord = menus_.empty() ? area_.get_x() : menus_.back()->get_area().get_top_right_corner_coords().x;
     Rectangle new_menu_area{new_menu_x_coord, area_.get_y(), DEFAULT_MENUBAR_BUTTON_WIDTH, area_.get_height()};
     Menu *new_menu = new Menu(new_menu_area, name, this);
@@ -161,13 +149,9 @@ Menubar::Menu::Menu(const Rectangle &rectangle, const char *name, Widget *parent
 {
     assert(name != nullptr);
 
-    //std::cout << "Menu constructor: " << std::endl;
     head_ = new MenuButton(rectangle, name, this);
     head_->clicked.connect<Menu>(this, &Menu::switch_mode);
     head_->set_head();
-    //std::cout << "out of Menu constructor" << std::endl;
-
-    id_ = 6;
 }
 
 Menubar::Menu::~Menu()
@@ -313,9 +297,7 @@ EventHandlerState Menubar::Menu::on_paint_event(const Event *event)
 //---------------------------------------------------------------------------------------------------
 Menubar::MenuButton::MenuButton(const Rectangle &rectangle, const char *text, Widget *parent)
     : Button(rectangle, text, parent)
-{//std::cout << "MenuButton constructor" << std::endl; 
-id_ = 7;
-}
+{}
 
 Menubar::MenuButton::~MenuButton()
 {}
@@ -346,7 +328,7 @@ EventHandlerState Menubar::MenuButton::on_paint_event(const Event *event)
         return EventHandlerState::Accepted;
     }
 
-    const Color *to_paint = is_pressed_ ? DEFAULT_BUTTON_PRESSED_COLOR : is_hovered_ ? DEFAULT_BUTTON_HOVERING_COLOR : DEFAULT_BUTTON_COLOR;
+    const Color *to_paint = is_pressed_ ? DEFAULT_BUTTON_PRESSED_COLOR : is_hovered_ ? DEFAULT_BUTTON_HOVERING_COLOR : DEFAULT_WIDGET_COLOR;
     surface_->clear(0);
     surface_->draw_rectangle(area_, *to_paint);
     

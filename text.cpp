@@ -74,7 +74,7 @@ void Text::set_font(const char *font_name)
     text_.setFont(font_);
 }
 
-void Text::center_text()                                // if beginning of the text not in 0 ? do relative computation
+void Text::center_text()
 {
     size_t text_len = get_length();
     Point2d last_character_pos = find_character_pos_(text_len);

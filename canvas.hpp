@@ -19,9 +19,11 @@ public:
 //------------------------------------------------------------------------
     Canvas(const Rectangle &rectangle, Widget *parent = nullptr);
 
-    ~Canvas();
+    virtual ~Canvas() override;
 //------------------------------------------------------------------------
     void move_image(const Point2d &offset);
+
+    const char *get_texture_name() const override;
 
     EventHandlerState on_paint_event                (const Event *event) override;
     EventHandlerState on_mouse_button_pressed_event (const Event *event) override;
@@ -39,11 +41,13 @@ private:
 
     void undo_();
 
+    //void redo_();
+
     void delete_remembered_images_();
 //------------------------------Variables---------------------------------
-    std::deque<Image *> remembered_images_{};
+    std::deque<ImageSf *> remembered_images_{};
 
-    Image *image_           = nullptr;    
+    ImageSf *image_ = nullptr;    
     Texture *image_texture_ = nullptr;
     Point2d image_start_{};
 
@@ -51,6 +55,7 @@ private:
 
     ToolAction cur_action_{};
 //------------------------------------------------------------------------
+
 };
 
 

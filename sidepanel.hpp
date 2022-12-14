@@ -2,11 +2,10 @@
 #define SIDEPANEL_HPP
 
 
+#include "colorpalette.hpp"
 #include "containerwidget.hpp"
 #include "toolpanel.hpp"
 
-
-static const Color *DEFAULT_SIDE_PANEL_COLOR = &LIGHT_GREY;
 
 
 class ToolPanel;
@@ -24,7 +23,7 @@ public:
 private:
 //------------------Variables---------------------------------
     ToolPanel *tool_panel_   = nullptr;
-    // ColorPalette *palette = nullptr;
+    ColorPalette *palette_   = nullptr;
 };
 
 

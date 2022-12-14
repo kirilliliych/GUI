@@ -60,8 +60,6 @@ EventHandlerState ContainerWidget::handle_event                  (const Event *e
 EventHandlerState ContainerWidget::on_mouse_button_pressed_event (const Event *event)
 {
     assert(event != nullptr);
-    // std::cout << "containerwidget: event_manager_.identif_ " << event_manager_.identif_ << std::endl;
-    // std::cout << "containerwidget:on_mouse_button_pressed" << std::endl;
 
     return event_manager_.handle_event(const_cast<Event *> (event));
 }
@@ -122,18 +120,14 @@ EventHandlerState ContainerWidget::on_lost_focus_event           (const Event *e
 EventHandlerState ContainerWidget::on_time_event                 (const Event *event)
 {
     assert(event != nullptr);
-    //std::cout << "containerwidget on_time_event called " << std::endl;
 
     update_on_time();
-    //std::cout << "after update_on_time" << std::endl;
 
     return event_manager_.handle_event(const_cast<Event *> (event));
 }
 EventHandlerState ContainerWidget::on_paint_event                (const Event *event)           
 {
     assert(event != nullptr);
-
-    //std::cout << "containerwidget: on_paint_event" << std::endl;
 
     return event_manager_.handle_event(const_cast<Event *> (event));
 }

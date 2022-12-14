@@ -19,7 +19,7 @@ bool Texture::load_from_file(const char *file_name)
     return texture_.loadFromFile(file_name);
 }
 
-bool Texture::load_from_image(const Image &image)
+bool Texture::load_from_image(const ImageSf &image)
 {
     return texture_.loadFromImage(image.image_);
 }

@@ -16,7 +16,6 @@ public:
     {
         desktop_ = new Desktop{};
         desktop_->set_event_manager(&main_event_manager_);
-        //main_event_manager_.identif_ = 100;
         desktop_->fill_desktop();
         connect<ContainerWindow>(desktop_, &ContainerWindow::exited, this, &Application::exit);
 
@@ -50,7 +49,6 @@ public:
 
         return 0;
     }
-
 
     void exit()
     {

@@ -40,8 +40,8 @@ private:
 //----------------------------Variables-----------------------
     bool requires_repaint_ = true;
 
-    Scene *scene_ = nullptr;
-    Image *image_ = nullptr;
+    Scene *scene_   = nullptr;
+    ImageSf *image_ = nullptr;
 
     Point2d last_rendered_pixel_{0, 0};
 //------------------------------------------------------------

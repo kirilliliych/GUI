@@ -3,12 +3,13 @@
 
 
 #include "image.hpp"
+#include "pluginzone.hpp"
 #include "widget.hpp"
 
 
 struct ToolAction
 {
-    Image *image;
+    ImageSf *image;
     Point2d point;
     bool shift;
     bool alt;
@@ -31,14 +32,27 @@ public:
     virtual void on_mouse_released(const ToolAction &action) = 0;
     virtual void on_mouse_moved   (const ToolAction &action) = 0;
     virtual const char *get_texture_name() const             = 0;
+    virtual void create_zone(const Rectangle &rectangle, ContainerWidget *parent)
+    {
+        if (zone_ == nullptr)
+        {
+            zone_ = new PluginZone(rectangle, "Zone for plugin", parent);
+        }
+    }
+
+    ContainerWidget *get_zone()
+    {
+        return zone_;
+    }
 
     bool is_to_change() const
     {
         return is_to_change_;
     }
-
 //---------------------Variables-----------------------
 protected:
+
+    PluginZone *zone_ = nullptr;
 
     bool is_to_change_ = true;
 //-----------------------------------------------------

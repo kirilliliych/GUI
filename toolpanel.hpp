@@ -13,9 +13,7 @@
 
 const int DEFAULT_TOOL_BUTTON_WIDTH  = 40;
 const int DEFAULT_TOOL_BUTTON_HEIGHT = 40;
-const int TOOL_BUTTONS_IN_A_ROW      = 5;
 
-static const Color *DEFAULT_TOOL_PANEL_COLOR                   = &LIGHT_GREY;
 static const Color *DEFAULT_TOOL_BUTTON_COLOR                  = &YELLOW;
 static const Color *DEFAULT_TOOL_BUTTON_HOVERING_COLOR         = &GREEN;
 static const Color *DEFAULT_TOOL_BUTTON_SELECTED_FRAME_COLOR   = &RED;
@@ -76,7 +74,7 @@ public:
                      const Color &unselected_tool_color = *DEFAULT_TOOL_BUTTON_UNSELECTED_FRAME_COLOR) override;
 //---------------------------Variables--------------------------------
 private:
-public:
+
     bool is_selected_ = false;
 
     Tool *tool_ = nullptr;

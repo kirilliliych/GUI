@@ -52,7 +52,7 @@ void Surface::draw_rectangle(const Rectangle &rectangle, const Color color)
 }
 
 
-void Surface::draw_image(const Image &image)
+void Surface::draw_image(const ImageSf &image)
 {
     sf::RectangleShape picture(sf::Vector2f{static_cast<float> (image.get_width()), 
                                             static_cast<float> (image.get_height())
@@ -74,12 +74,37 @@ void Surface::draw_sprite(const Sprite &sprite)
     update();
 }
 
+void Surface::draw_sprite(const Point2d &start, const Sprite &sprite)
+{
+    Sprite temp_sprite = sprite;
+    temp_sprite.set_position(start);
+    surface_.draw(temp_sprite.sprite_);
+
+    update();
+}
+
 void Surface::draw_text(const Text &text)
 {
     surface_.draw(text.text_);
     
     update();
 }
+
+void Surface::draw_point(const Point2d &point, const Color &color)
+{
+    sf::Vertex vertex{sf::Vector2f{point.x, point.y}, sf::Color{color.get_uint32_color()}};
+    surface_.draw(&vertex, 1, sf::Points);
+
+    update();
+}
+
+Point2d Surface::get_size() const
+{
+    sf::Vector2u size = surface_.getSize();
+
+    return Point2d{static_cast<int> (size.x), static_cast<int> (size.y)};
+}
+
 
 const Texture &Surface::get_texture() const
 {

@@ -3,12 +3,17 @@
 
 ContainerWindow::ContainerWindow(int width,
                                  int height,
-                                 const char *name,
-                                 Color background_color)
+                                 const char *name)
   : Window(width, height, name),
     ContainerWidget(Rectangle{0, 0, width, height}, nullptr),
-    background_color_(background_color)
-{}
+    background_color_(*DEFAULT_CONTAINERWIDGET_BACKGROUND_COLOR)
+{
+    const char *tex_name = get_texture_name(); 
+    if (tex_name != nullptr)
+    {
+        has_texture_ = skin_->load_from_file(tex_name);
+    }
+}
 
 
 void ContainerWindow::exit()
@@ -31,11 +36,22 @@ void ContainerWindow::render(Surface *surface)
     assert(surface != nullptr);
 
     surface_->clear(0);
-    surface_->draw_rectangle(area_, background_color_);
+    if (has_texture_)
+    {
+        surface_->draw_sprite(Sprite{*skin_, Rectangle{0, 0, area_.get_width(), area_.get_height()}});
+    }
+    else
+    {
+        surface_->draw_rectangle(area_, background_color_);
+    }
 
     return ContainerWidget::render(surface);
 }
 
+const char *ContainerWindow::get_texture_name() const
+{
+    return "skins/main_background.jpg";
+}
 
 EventHandlerState ContainerWindow::handle_event(const Event *event)
 {
@@ -50,3 +66,4 @@ EventHandlerState ContainerWindow::handle_event(const Event *event)
 
     return ContainerWidget::handle_event(event);
 }
+

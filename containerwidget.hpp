@@ -5,9 +5,6 @@
 #include "widget.hpp"
 
 
-static const Color *DEFAULT_CONTAINERWIDGET_BACKGROUND_COLOR = &SEA_GREEN;
-
-
 class ContainerWidget : public Widget
 {
 public:
@@ -38,7 +35,6 @@ public:
 protected:
 public:
 //------------------------Variables------------------------------------------------------
-    Color color_ = *DEFAULT_CONTAINERWIDGET_BACKGROUND_COLOR;
 
     EventManager event_manager_;
     EventManager *parent_manager_ = nullptr;

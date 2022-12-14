@@ -8,9 +8,13 @@
 
 
 const int DEFAULT_TOOL_HOLLOW_SHAPE_THICKNESS = 5;
+const int DEFAULT_TOOL_BRUSH_RADIUS           = 5;
 
 
-void draw_line(Image *image, const Point2d &point1, const Point2d &point2, const Color &color);
+void draw_line  (ImageSf *image, const Point2d &point1, const Point2d &point2, const Color &color,
+                 void (*mode)(ImageSf *, const Point2d &, const Color &, const int) = nullptr,
+                 const int radius = 1);
+void draw_circle(ImageSf *image, const Point2d &center, const Color &color, const int radius);
 
 double calc_color_norm(const Color &color1, const Color &color2);
 
@@ -21,12 +25,12 @@ public:
 //-------------------------------------------------------------------
     Pencil();
 
-    ~Pencil();
+    virtual ~Pencil();
 //-------------------------------------------------------------------
-    void on_mouse_pressed (const ToolAction &action) override;
-    void on_mouse_released(const ToolAction &action) override;
-    void on_mouse_moved   (const ToolAction &action) override;
-    const char *get_texture_name() const override;
+    virtual void on_mouse_pressed (const ToolAction &action) override;
+    virtual void on_mouse_released(const ToolAction &action) override;
+    virtual void on_mouse_moved   (const ToolAction &action) override;
+    virtual const char *get_texture_name() const override;
 //---------------------------Variables-------------------------------
 private:
 
@@ -62,10 +66,10 @@ public:
 //-------------------------------------------------------------------
     Rect();
 
-    ~Rect();
+    virtual ~Rect();
 //-------------------------------------------------------------------
-    void on_mouse_pressed(const ToolAction &action) override;
-    const char *get_texture_name() const override;
+    virtual void on_mouse_pressed(const ToolAction &action) override final;
+    virtual const char *get_texture_name() const override final;
 //---------------------------Variables-------------------------------
 private:
 
@@ -99,10 +103,10 @@ public:
 //-------------------------------------------------------------------
     Ellipse();
 
-    ~Ellipse();
+    virtual ~Ellipse();
 //-------------------------------------------------------------------
-    void on_mouse_pressed(const ToolAction &action) override;
-    const char *get_texture_name() const override;
+    virtual void on_mouse_pressed(const ToolAction &action) override final;
+    virtual const char *get_texture_name() const override final;
 //---------------------------Variables-------------------------------
 private:
 
@@ -144,7 +148,40 @@ public:
 };
 
 
+class Brush : public Tool
+{
+public:
+//-------------------------------------------------------------------
+    Brush();
 
+    virtual ~Brush();
+//-------------------------------------------------------------------
+    virtual void on_mouse_pressed (const ToolAction &action) override;
+    virtual void on_mouse_released(const ToolAction &action) override;
+    virtual void on_mouse_moved   (const ToolAction &action) override;
+    virtual const char *get_texture_name() const override;
+//---------------------------Variables-------------------------------
+protected:
+    
+    bool is_pressed_ = false;
+
+    int thickness_ = DEFAULT_TOOL_BRUSH_RADIUS;
+    Point2d prev_point_{};
+};
+
+
+class Eraser : public Brush
+{
+public:
+//-------------------------------------------------------------------
+    Eraser();
+
+    virtual ~Eraser();
+//-------------------------------------------------------------------
+    virtual void on_mouse_pressed(const ToolAction &action) override final;
+    virtual void on_mouse_moved  (const ToolAction &action) override final;
+    virtual const char *get_texture_name() const override final;
+};
 
 
 #endif

@@ -17,7 +17,7 @@
 const size_t MAX_SPHERES_QUANTITY_SCENE = 1024;
 
 
-class Image;
+class ImageSf;
 
 
 class Sphere

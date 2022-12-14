@@ -14,7 +14,7 @@
 
 class Surface;
 class Sprite;
-class Image;
+class ImageSf;
 
 
 class Texture
@@ -32,7 +32,7 @@ public:
 //-----------------------------------------------------
     bool load_from_file(const char *file_name);
 
-    bool load_from_image(const Image &image);
+    bool load_from_image(const ImageSf &image);
 
     void set_repeated(bool is_repeated);
 

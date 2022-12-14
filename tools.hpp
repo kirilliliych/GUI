@@ -141,7 +141,7 @@ namespace booba { // boot of outstanding best api
         virtual void putPixel(uint32_t x, uint32_t y, uint32_t color) = 0;     
 
         /**
-         * @brief Reference access to pixels.
+                                              // copypaste    * @brief Reference access to pixels.
          * 
          * @param x - x coord. Must be less than width
          * @param y - y coord. Must be less than height
@@ -202,7 +202,7 @@ namespace booba { // boot of outstanding best api
         virtual const char* getTexture() = 0; 
 
         /**
-         * @brief Build widget on toolbar by using createButoon/createLabel/createScrollbar/createCanvas
+         * @brief Build widget on toolbar by using createButton/createLabel/createScrollbar/createCanvas
          * They will be added to toolbar.
          */
         virtual void buildSetupWidget() = 0;
@@ -220,7 +220,7 @@ namespace booba { // boot of outstanding best api
      * @param text - text on button.
      * @return unique identifier. 0 if unsuccess.
      */
-    extern "C" uint64_t createButton   (int32_t x, int32_t y, uint32_t w, uint32_t h, const char* text);
+    extern "C" uint64_t createButton(int32_t x, int32_t y, uint32_t w, uint32_t h, const char* text);
     
     /**
      * @brief Creates label on some given toolbar.
@@ -232,7 +232,7 @@ namespace booba { // boot of outstanding best api
      * @param text - text on label.
      * @return unique identifier. 0 if unsuccess.
      */
-    extern "C" uint64_t createLabel    (int32_t x, int32_t y, uint32_t w, uint32_t h, const char* text);
+    extern "C" uint64_t createLabel(int32_t x, int32_t y, uint32_t w, uint32_t h, const char* text);
     
     /**
      * @brief Creates scrollbar on some given toolbar.
@@ -266,7 +266,7 @@ namespace booba { // boot of outstanding best api
      * @param y - y coordinate of pixel.
      * @param color - color of pixel.
      */
-    extern "C" void putPixel (uint64_t canvas, int32_t x, int32_t y, uint32_t color);
+    extern "C" void putPixel(uint64_t canvas, int32_t x, int32_t y, uint32_t color);
     
     /**
      * @brief Blits image to canvas

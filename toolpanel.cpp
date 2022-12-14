@@ -11,8 +11,6 @@ ToolPanel::ToolPanel(const Rectangle &rectangle, const std::vector<Tool *> &tool
     {
         add_tool_button_(tools[tool_index]);
     }
-
-    event_manager_.identif = 3000;
 }
 
 ToolPanel::~ToolPanel()
@@ -33,9 +31,7 @@ EventHandlerState ToolPanel::on_paint_event(const Event *event)
 {
     assert(event != nullptr);
 
-    surface_->draw_rectangle(area_, *DEFAULT_TOOL_PANEL_COLOR);
-
-    //std::cout << "ToolPanel::on_paint_event called" << std::endl;
+    surface_->draw_rectangle(area_, *DEFAULT_WIDGET_COLOR);
 
     return ContainerWidget::on_paint_event(event);
 }
@@ -46,8 +42,9 @@ void ToolPanel::add_tool_button_(Tool *tool)
 
     int cur_buttons_quantity = buttons_.size();
 
-    ToolButton *new_button = new ToolButton(Rectangle{area_.get_x() + DEFAULT_TOOL_BUTTON_WIDTH  * (cur_buttons_quantity % TOOL_BUTTONS_IN_A_ROW) + cur_buttons_quantity,
-                                                      area_.get_y() + DEFAULT_TOOL_BUTTON_HEIGHT * (cur_buttons_quantity / TOOL_BUTTONS_IN_A_ROW),
+    int tool_buttons_in_a_row = area_.get_width() / DEFAULT_TOOL_BUTTON_WIDTH;
+    ToolButton *new_button = new ToolButton(Rectangle{area_.get_x() + (DEFAULT_TOOL_BUTTON_WIDTH + 1)  * (cur_buttons_quantity % tool_buttons_in_a_row),
+                                                      area_.get_y() +  DEFAULT_TOOL_BUTTON_HEIGHT      * (cur_buttons_quantity / tool_buttons_in_a_row),
                                                       DEFAULT_TOOL_BUTTON_WIDTH,
                                                       DEFAULT_TOOL_BUTTON_HEIGHT},
                                             tool, this);
@@ -142,7 +139,7 @@ EventHandlerState ToolButton::on_paint_event(const Event *event)
         surface_->draw_sprite(Sprite{*skin_, Rectangle{0, 0, area_.get_width(), area_.get_height()}});
         if (is_hovered_)
         {
-            surface_->draw_rectangle({0, 0, area_.get_width(), area_.get_height()}, FOCUSED_WIDGET_TEXTURE_HOVERED_COLOR)   ;
+            surface_->draw_rectangle({0, 0, area_.get_width(), area_.get_height()}, FOCUSED_WIDGET_TEXTURE_HOVERED_COLOR);
         }
     }
     draw_frame_();

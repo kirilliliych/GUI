@@ -17,10 +17,6 @@ Widget::Widget(const Rectangle &rectangle, Widget *parent)
     {
         parent->add_child(this);
     }
-    else
-    {
-        std::cout << "widget parent nullptr" << std::endl;
-    }
 }
 
 Widget::~Widget()
@@ -37,8 +33,6 @@ void Widget::set_event_manager(EventManager *event_manager)
         return;
     }
 
-    //std::cout << "Widget event manager set, id " << event_manager->identif_ << std::endl;
-
     event_manager_ptr_ = event_manager;
     event_manager_ptr_->subscribe(this);
 }
@@ -50,7 +44,6 @@ void Widget::add_child(Widget *child)
 
     children_.push_back(child);
     child->set_event_manager(event_manager_ptr_);
-    //std::cout << "add child to event manager with identif " << event_manager_ptr_->identif_ << std::endl;
 }
 
 
@@ -58,8 +51,6 @@ void Widget::render(Surface *surface)
 {
     if ((surface_ != nullptr) && (!hidden_))
     {
-        //std::cout << "render: rendering " << id_ << std::endl;
-
         Sprite temp{};
         temp.load_from_surface(surface_);
         temp.set_position(area_.get_x(), area_.get_y());
@@ -69,10 +60,6 @@ void Widget::render(Surface *surface)
         {
             children_[child_index]->render(surface);
         }
-    }
-    else
-    {
-        std::cout << "Given surface is unitialized " << __LINE__ << " " << __FILE__ << std::endl;
     }
 }
 
@@ -103,15 +90,22 @@ bool Widget::contains(const Point2d &position)
     return hidden_ ? false : ignored_by_events_ ? false : area_.contains(position);
 }
 
-
 void Widget::show()
 {
     hidden_ = false;
+    for (int child_index = 0; child_index < children_.size(); ++child_index)
+    {
+        children_[child_index]->show();
+    }
 }
 
 void Widget::hide()
 {
     hidden_ = true;
+    for (int child_index = 0; child_index < children_.size(); ++child_index)
+    {
+        children_[child_index]->hide();
+    }
 }
 
 bool Widget::is_hidden()
@@ -127,6 +121,12 @@ void Widget::make_ignored_by_events()
 bool Widget::is_ignored_by_events() const
 {
     return ignored_by_events_;
+}
+
+
+const char *Widget::get_texture_name() const
+{
+    return nullptr;
 }
 
 
@@ -164,6 +164,7 @@ EventHandlerState Widget::on_mouse_left_event           (const Event *event)
 }
 EventHandlerState Widget::on_key_pressed_event          (const Event *event)
 {
+
     return EventHandlerState::Skipped;
 }
 EventHandlerState Widget::on_key_released_event         (const Event *event)
@@ -196,8 +197,8 @@ EventHandlerState Widget::on_paint_event                (const Event *event)
 
 void Widget::draw_frame_(const Color &focused_color, const Color &unfocused_color)
 {
-    surface_->draw_line({0,                      0}, {area_.get_width(),                          0}, in_focus_ ? focused_color : unfocused_color);
-    surface_->draw_line({area_.get_width(),      0}, {area_.get_width(),     area_.get_height() - 1}, in_focus_ ? focused_color : unfocused_color);
-    surface_->draw_line({1,                      0}, {1,                     area_.get_height() - 1}, in_focus_ ? focused_color : unfocused_color);
-    surface_->draw_line({0, area_.get_height() - 1}, {area_.get_width() - 1, area_.get_height() - 1}, in_focus_ ? focused_color : unfocused_color);
+    surface_->draw_line({0,                      0}, {area_.get_width(),                      0}, in_focus_ ? focused_color : unfocused_color);
+    surface_->draw_line({area_.get_width(),      0}, {area_.get_width(), area_.get_height() - 1}, in_focus_ ? focused_color : unfocused_color);
+    surface_->draw_line({1,                      0}, {1,                 area_.get_height() - 1}, in_focus_ ? focused_color : unfocused_color);
+    surface_->draw_line({0, area_.get_height() - 1}, {area_.get_width(), area_.get_height() - 1}, in_focus_ ? focused_color : unfocused_color);
 }

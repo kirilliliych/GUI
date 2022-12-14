@@ -9,9 +9,8 @@
 #include "widget.hpp"
 
 
-static const Color *DEFAULT_BUTTON_COLOR          = &LIGHT_GREY;
 static const Color *DEFAULT_BUTTON_HOVERING_COLOR = &GREY;
-static const Color *DEFAULT_BUTTON_PRESSED_COLOR  = &RED;
+static const Color *DEFAULT_BUTTON_PRESSED_COLOR  = &ORANGE;
 
 
 class Button : public Widget
@@ -28,28 +27,21 @@ public:
                                   }, this)),
         is_named_(true)
     {
-        //std::cout << "Button constructor: " << std::endl;
         text_.make_ignored_by_events();
 
         id_ = 2;
-        //std::cout << "id: " << id_ << std::endl;
-
-        //std::cout << "end of Button constructor " << std::endl;
     }
 
     Button(const Rectangle &rectangle, Widget *parent = nullptr)
       : Button(rectangle, "", parent)
     {
-        //std::cout << "Button constructor" << std::endl;
         text_.make_ignored_by_events();
 
         id_ = 2;
-        //std::cout << "id: " << id_ << std::endl;
-
-        //std::cout << "end of Button constructor " << std::endl;
     }
 
-    virtual ~Button(){}
+    virtual ~Button() override
+    {}
 
 
     Button(const Button &button)             = delete;
@@ -98,13 +90,11 @@ public:
     EventHandlerState on_mouse_button_pressed_event(const Event *event) override
     {
         assert(event != nullptr);
-        std::cout << "button: on_mouse_button_pressed_event x "<< event->mbedata_.position.x << " y " << event->mbedata_.position.y << std::endl;
+        
         if (event->mbedata_.button == MouseButton::Left)
         {
-            is_pressed_          = true;
-            //std::cout << "button:on_mouse_button_pressed_event before pressed_emit" << std::endl;
+            is_pressed_       = true;
             pressed.emit();
-            //std::cout << "button:on_mouse_button_pressed_event after pressed_emit" << std::endl;
             requires_repaint_ = true;
 
             return EventHandlerState::Accepted;
@@ -122,9 +112,7 @@ public:
             released.emit();
             if (area_.contains(event->mbedata_.position))
             {
-                //std::cout << "button:on_mouse_button_released_event before clicked_emit" << std::endl;  
                 clicked.emit();
-                //std::cout << "button:on_mouse_button_released_event after clicked_emit" << std::endl;
             }
 
             is_pressed_       = false;
@@ -187,9 +175,7 @@ public:
         }
         if (is_pressed_)
         {
-            //std::cout << "button:on_lost_focus_event before released_emit" << std::endl;
             released.emit();
-            //std::cout << "button:on_lost_focus_event after released_emit" << std::endl;
         }
         is_pressed_       = false;
         requires_repaint_ = true;
@@ -218,7 +204,7 @@ public:
     Signal<> pressed;
     Signal<> released;
 
-    Signal<> mouse_entered;     // meme
+    Signal<> mouse_entered;     // just for meme
 //---------------------------------------------------------------------------------------
 };
 
@@ -255,7 +241,7 @@ public:
     ActionButton(const Button &button)             = delete;
     ActionButton &operator =(const Button &button) = delete;
 //---------------------------------------------------------------------------------------
-    void set_color(Color color)
+    void set_color(const Color &color)
     {
         color_ = color;
         requires_repaint_ = true;
@@ -263,7 +249,6 @@ public:
 
     EventHandlerState on_paint_event(const Event *event) override
     {
-        //std::cout << "button: called on_paint_event" << std::endl;
         assert(event != nullptr);
 
         if (!requires_repaint_)
@@ -271,7 +256,7 @@ public:
             return EventHandlerState::Accepted;
         }
 
-        const Color *to_paint = is_hovered_ ? &hovering_color_ : &color_;
+        const Color *to_paint = is_pressed_ ? DEFAULT_BUTTON_PRESSED_COLOR : is_hovered_ ? DEFAULT_BUTTON_HOVERING_COLOR : DEFAULT_WIDGET_COLOR;
         surface_->clear(0);
         surface_->draw_rectangle(area_, *to_paint);
         
@@ -285,7 +270,7 @@ public:
 private:
 //public:
 //-----------------------------------Variables-------------------------------------------
-    Color color_{*DEFAULT_BUTTON_COLOR};
+    Color color_{*DEFAULT_WIDGET_COLOR};
     Color hovering_color_{*DEFAULT_BUTTON_HOVERING_COLOR};
 //---------------------------------------------------------------------------------------
 };

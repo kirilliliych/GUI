@@ -19,13 +19,11 @@ public:
     ~Signal()
     {}
     
-
     Signal(const Signal &signal)             = delete;
     Signal &operator =(const Signal &signal) = delete;
 //-------------------------------------------------------------
     void emit(Args... args)
     {
-        //std::cout << "slots size: " << slots_.size() << std::endl;
         for (int i = 0; i < slots_.size(); ++i)
         {
             std::pair cur_pair = slots_[i];
@@ -39,31 +37,27 @@ public:
     template<class T>
     void connect(T *signal_object, void (T::*function)(Args...))
     {
-        //std::cout << "connect: " << std::endl;
-        //std::cout << "until: " << slots_.size() << std::endl;  
         slots_.push_back(std::pair{static_cast<SignalObject *> (signal_object), static_cast<SigObjFunc> (function)});
-        //std::cout << "after: " << slots_.size() << std::endl;
     }
 
-    template<class T>
-    void disconnect(T *signal_object, void (T::*function)(Args...))
-    {
-        for (int i = 0; i < slots_.size(); ++i)
-        {
-            std::pair cur_pair = slots_[i];
-            
-            if ((cur_pair.first == signal_object) && (cur_pair.second == function))
-            {
-                slots_[i].first = nullptr;
-            }
-        }
-    }
+    // template<class T>
+    // void disconnect(T *signal_object, void (T::*function)(Args...))
+    // {
+    //     for (int i = 0; i < slots_.size(); ++i)
+    //     {
+    //         std::pair cur_pair = slots_[i];
+    //         if ((cur_pair.first == signal_object) && (cur_pair.second == function))
+    //         {
+    //             slots_[i].first = nullptr;
+    //         }
+    //     }
+    // }
 
-    template<class T>
-    void add_transmitter(T *signal_object, Signal<Args...> T::*transmitter)
-    {
-        connect(&(signal_object->*transmitter), &Signal<Args...>::emit);
-    }
+    // template<class T>
+    // void add_transmitter(T *signal_object, Signal<Args...> T::*transmitter)
+    // {
+    //     connect(&(signal_object->*transmitter), &Signal<Args...>::emit);
+    // }
 
 private:
 //---------------------------------Variables------------------------------------------
@@ -81,22 +75,22 @@ void connect(T *emitter, Signal<Args...> T::*signal, U *receiver, void (U::*slot
     (emitter->*signal).connect(receiver, slot);
 }
 
-template<class T, class U, class... Args>
-void disconnect(T *emitter, Signal<Args...> T::*signal, U *receiver, void (U::*slot)(Args...))
-{
-    assert(emitter  != nullptr);
-    assert(receiver != nullptr);
+// template<class T, class U, class... Args>
+// void disconnect(T *emitter, Signal<Args...> T::*signal, U *receiver, void (U::*slot)(Args...))
+// {
+//     assert(emitter  != nullptr);
+//     assert(receiver != nullptr);
 
-    (emitter->*signal).disconnect(receiver, slot);
-}
+//     (emitter->*signal).disconnect(receiver, slot);
+// }
 
-template<class T, class U, class... Args>
-void add_transmitter(T *emitter, Signal<Args...> T::*signal, U *receiver, Signal<Args...> U::*transmitter)
-{
-    assert(emitter  != nullptr);
-    assert(receiver != nullptr);
+// template<class T, class U, class... Args>
+// void add_transmitter(T *emitter, Signal<Args...> T::*signal, U *receiver, Signal<Args...> U::*transmitter)
+// {
+//     assert(emitter  != nullptr);
+//     assert(receiver != nullptr);
 
-    (emitter->*signal).add_transmitter(receiver, transmitter);
-}
+//     (emitter->*signal).add_transmitter(receiver, transmitter);
+// }
 
 #endif

@@ -6,14 +6,20 @@ Canvas::Canvas(const Rectangle &rectangle, Widget *parent)
   : Widget(rectangle, parent)
 {
     image_texture_ = new Texture();
-    image_         = new Image(area_.get_width(),
-                               area_.get_height());
+    image_         = new ImageSf(rectangle.get_width(),
+                                 rectangle.get_height());
     
     cur_action_.image = image_;
-    
-    assert(image_->is_created());
 
-    id_ = 25;
+    const char *tex_name = get_texture_name(); 
+    if (tex_name != nullptr)
+    {
+        has_texture_ = skin_->load_from_file(tex_name);
+        if (has_texture_)
+        {
+            image_->load_from_file(tex_name);
+        }
+    }
 }
 
 Canvas::~Canvas()
@@ -23,6 +29,18 @@ Canvas::~Canvas()
     delete_remembered_images_();
 }
 
+
+void Canvas::move_image(const Point2d &offset)
+{
+    image_start_ += offset;
+
+    requires_repaint_ = true;
+}
+
+const char *Canvas::get_texture_name() const
+{
+    return "skins/canvas_background.jpg";
+}
 
 EventHandlerState Canvas::on_paint_event(const Event *event)
 {
@@ -37,8 +55,10 @@ EventHandlerState Canvas::on_paint_event(const Event *event)
 
         Sprite temp_sprite(*image_texture_);
         temp_sprite.set_position(image_start_);
-        surface_->clear(0);
+        surface_->clear(WHITE);
         surface_->draw_sprite(temp_sprite);
+
+        draw_frame_();
     }
 
     requires_repaint_ = false;
@@ -193,12 +213,6 @@ EventHandlerState Canvas::on_lost_focus_event(const Event *event)
     return EventHandlerState::Accepted;
 }
 
-void Canvas::move_image(const Point2d &offset)
-{
-    image_start_ += offset;
-    requires_repaint_ = true;
-}
-
 
 bool Canvas::image_contains_(Point2d point)
 {
@@ -211,30 +225,26 @@ void Canvas::save_cur_image_()
 {
     if (remembered_images_.size() == MAX_UNDO_DEPTH)
     {
-        Image *popped_out = remembered_images_.front();
+        ImageSf *popped_out = remembered_images_.front();
         delete popped_out;
         remembered_images_.pop_front();
     }
-    Image *new_remembered_image = new Image{};
+    ImageSf *new_remembered_image = new ImageSf{};
     *new_remembered_image = *image_;
     remembered_images_.push_back(new_remembered_image);
-    //std::cout << "saved_image\n";
 }
 
 void Canvas::undo_()
 {
     if (remembered_images_.size() > 0)
     {
-        Image *popped_out = remembered_images_.back();
+        ImageSf *popped_out = remembered_images_.back();
         *image_ = *popped_out;
         delete popped_out;
         remembered_images_.pop_back();
-        //std::cout << "did undo\n";
     }
-
     requires_repaint_ = true;
 }
-
 
 void Canvas::delete_remembered_images_()
 {

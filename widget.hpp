@@ -16,11 +16,18 @@
 #include "surface.hpp"
 
 
-static const char *NO_TEXTURE_REQUIRED  = reinterpret_cast<const char *> (0xDEADDEAD);
- 
-static const Color *FOCUSED_WIDGET_FRAME_COLOR          = &ORANGE; 
-static const Color *UNFOCUSED_WIDGET_FRAME_COLOR        = &LIGHT_GREY;
-static const Color FOCUSED_WIDGET_TEXTURE_HOVERED_COLOR = Color{0x00000060};
+struct ShiftAltCtrl
+{
+    bool shift = false;
+    bool alt   = false;
+    bool ctrl  = false;
+};
+
+static const Color *DEFAULT_WIDGET_COLOR                 = &LIGHT_GREY;
+static const Color *FOCUSED_WIDGET_FRAME_COLOR           = &ORANGE; 
+static const Color *UNFOCUSED_WIDGET_FRAME_COLOR         = &LIGHT_GREY;
+static const Color FOCUSED_WIDGET_TEXTURE_HOVERED_COLOR  = Color{0x00000060};
+
 
 class Widget : public SignalObject
 {
@@ -47,7 +54,6 @@ public:
     const Rectangle &get_area() const;
     void move(const Point2d &offset);
 
-
     const Point2d get_reference_point_for_event() const;
     virtual bool contains(const Point2d &position);
 
@@ -57,6 +63,7 @@ public:
     void make_ignored_by_events();
     bool is_ignored_by_events() const;
 
+    virtual const char *get_texture_name() const;
 
     virtual void update_on_time(){}
 

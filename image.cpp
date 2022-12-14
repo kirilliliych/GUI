@@ -1,15 +1,15 @@
 #include "image.hpp"
 
 
-Image::Image()
+ImageSf::ImageSf()
 {}
 
-Image::Image(int width, int height, const Color &color)
+ImageSf::ImageSf(int width, int height, const Color &color)
 {
     create(width, height, color);
 }
 
-Image::Image(const char *file_name)
+ImageSf::ImageSf(const char *file_name)
 {
     assert(file_name != nullptr);
 
@@ -21,7 +21,7 @@ Image::Image(const char *file_name)
 }
 
 
-void Image::create(int width, int height, const Color &color)
+void ImageSf::create(int width, int height, const Color &color)
 {
     width_  = width;
     height_ = height;
@@ -29,19 +29,19 @@ void Image::create(int width, int height, const Color &color)
     image_.create(width, height, color.get_color_ref());
 }
 
-bool Image::is_created() const
+bool ImageSf::is_created() const
 {
     return image_.getSize() != sf::Vector2u{0, 0};
 }
 
-bool Image::load_from_file(const char *file_name)
+bool ImageSf::load_from_file(const char *file_name)
 {
     assert(file_name != nullptr);
 
     return image_.loadFromFile(file_name);
 }
 
-Color Image::get_pixel(int x_coord, int y_coord)
+Color ImageSf::get_pixel(int x_coord, int y_coord)
 {
     sf::Color result = image_.getPixel(static_cast<unsigned> (x_coord), 
                                        static_cast<unsigned> (y_coord));
@@ -49,23 +49,24 @@ Color Image::get_pixel(int x_coord, int y_coord)
     return Color{result.toInteger()};
 }
 
-void Image::set_pixel(int x_coord, int y_coord, Color color)
+void ImageSf::set_pixel(int x_coord, int y_coord, Color color)
 {
-    image_.setPixel(x_coord, y_coord, color.get_color_ref());
+    //image_.setPixel(x_coord, y_coord, color.get_color_ref());
+    image_.setPixel(x_coord, y_coord, sf::Color{color.get_uint32_color()});
 }
 
-int Image::get_width() const
+int ImageSf::get_width() const
 {
     return width_;
 }
 
-int Image::get_height() const
+int ImageSf::get_height() const
 {
     return height_;
 }
 
 
-void Image::render_pixel(const Camera &camera, const SphereArr &spheres, int x, int y)
+void ImageSf::render_pixel(const Camera &camera, const SphereArr &spheres, int x, int y)
 {
     Vector3d congregated_color{0, 0, 0};
     for (int pixel_processing_num = 0; pixel_processing_num < ANTI_ALIASING_PROCESSING_PER_PIXEL; ++pixel_processing_num)

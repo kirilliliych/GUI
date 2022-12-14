@@ -4,7 +4,8 @@
 #include "painteditor.hpp"
 
 
-void draw_line(Image *image, const Point2d &point1, const Point2d &point2, const Color &color)
+void draw_line(ImageSf *image, const Point2d &point1, const Point2d &point2, const Color &color,
+               void (*mode)(ImageSf *, const Point2d &, const Color &, const int), const int radius)
 {
     int dx     =  abs(point2.x - point1.x);
     int x_sign = point2.x > point1.x ? 1 : -1;
@@ -16,7 +17,14 @@ void draw_line(Image *image, const Point2d &point1, const Point2d &point2, const
     int from_y = point1.y;
     while (Point2d{from_x, from_y} != point2)
     {
-        image->set_pixel(from_x, from_y, color);
+        if (mode == nullptr)
+        {
+            image->set_pixel(from_x, from_y, color);
+        }
+        else
+        {
+            mode(image, Point2d{from_x, from_y}, color, radius);
+        }
         int err2 = 2 * err;
 
         if (err2 >= dy)
@@ -38,7 +46,42 @@ void draw_line(Image *image, const Point2d &point1, const Point2d &point2, const
             from_y += y_sign;
         }
     }
-    image->set_pixel(from_x, from_y, color);
+    if (mode == nullptr)
+    {
+        image->set_pixel(from_x, from_y, color);
+    }
+    else
+    {
+        mode(image, Point2d{from_x, from_y}, color, radius);
+    }
+}
+
+void draw_circle(ImageSf *image, const Point2d &center, const Color &color, const int radius)
+{
+    assert(radius > 0);
+
+    Point2d smaller_coords{std::max(static_cast<int> (center.x - radius), 0),
+                           std::max(static_cast<int> (center.y - radius), 0)
+                          };
+    Point2d bigger_coords {std::min(static_cast<int> (center.x + radius), image->get_width()  - 1),
+                           std::min(static_cast<int> (center.y + radius), image->get_height() - 1)
+                          };
+
+    int r2 = radius * radius;
+    for (int x = static_cast<int> (smaller_coords.x); x <= static_cast<int> (bigger_coords.x); ++x)
+    {
+        for (int y = static_cast<int> (smaller_coords.y); y <= static_cast<int> (bigger_coords.y); ++y)
+        {
+            int dx = abs(x - center.x);
+            int dy = abs(y - center.y);
+            int dx2 = dx * dx;
+            int dy2 = dy * dy;
+            if (dx2 + dy2 <= r2)
+            {
+                image->set_pixel(x, y, color);
+            }
+        }
+    }       
 }
 
 double calc_color_norm(const Color &color1, const Color &color2)
@@ -81,14 +124,14 @@ void Pencil::on_mouse_moved(const ToolAction &action)
 {
     if (is_pressed_)
     {
-        draw_line(action.image, prev_point_, action.point, PaintEditor::application_->basic_colors.foreground_color);       // artifacts when cursor out of canvas
+        draw_line(action.image, prev_point_, action.point, PaintEditor::application_->basic_colors.foreground_color);       // artifacts when cursor is out of canvas
         prev_point_ = action.point;
     }
 }
 
 const char *Pencil::get_texture_name() const
 {
-    return "assets/pencil.png";
+    return "skins/pencil.png";
 }
 //------------------------------------------------------------------------------------
 RectFiller::RectFiller()
@@ -111,9 +154,9 @@ void RectFiller::on_mouse_pressed(const ToolAction &action)
         Point2d bigger_coords {fill_from_.x > fill_to.x ? fill_from_.x : fill_to.x,
                                fill_from_.y > fill_to.y ? fill_from_.y : fill_to.y
                               };
-        for (int x = smaller_coords.x; x <= bigger_coords.x; ++x)
+        for (int x = static_cast<int> (smaller_coords.x); x <= static_cast<int> (bigger_coords.x); ++x)
         {
-            for (int y = smaller_coords.y; y <= bigger_coords.y; ++y)
+            for (int y = static_cast<int> (smaller_coords.y); y <= static_cast<int> (bigger_coords.y); ++y)
             {
                 action.image->set_pixel(x, y, PaintEditor::application_->basic_colors.foreground_color);
             }
@@ -138,11 +181,12 @@ void RectFiller::on_mouse_moved   (const ToolAction &action)
 
 const char *RectFiller::get_texture_name() const
 {
-    return "assets/rectfiller.png";
+    return "skins/rectfiller.png";
 }
 //------------------------------------------------------------------------------------
 Rect::Rect()
-  : RectFiller()
+  : RectFiller(),
+    thickness_(DEFAULT_TOOL_HOLLOW_SHAPE_THICKNESS)
 {}
 
 Rect::~Rect()
@@ -187,7 +231,7 @@ void Rect::on_mouse_pressed(const ToolAction &action)
 
 const char *Rect::get_texture_name() const
 {
-    return "assets/rect.png";
+    return "skins/rect.png";
 }
 //------------------------------------------------------------------------------------
 EllipseFiller::EllipseFiller()
@@ -249,11 +293,12 @@ void EllipseFiller::on_mouse_moved   (const ToolAction &action)
 
 const char *EllipseFiller::get_texture_name() const
 {
-    return "assets/ellipsefiller.png";
+    return "skins/ellipsefiller.png";
 }
 //------------------------------------------------------------------------------------
 Ellipse::Ellipse()
-  : EllipseFiller()
+  : EllipseFiller(),
+    thickness_(DEFAULT_TOOL_HOLLOW_SHAPE_THICKNESS)
 {}
 
 Ellipse::~Ellipse()
@@ -263,7 +308,7 @@ void Ellipse::on_mouse_pressed(const ToolAction &action)
 {
     if (registered_from_)
     {
-        Image image_copy = *action.image;
+        ImageSf image_copy = *action.image;
         EllipseFiller::on_mouse_pressed(action);
 
         Point2d fill_to = action.point;
@@ -312,7 +357,7 @@ void Ellipse::on_mouse_pressed(const ToolAction &action)
 
 const char *Ellipse::get_texture_name() const
 {
-    return "assets/ellipse.png";
+    return "skins/ellipse.png";
 }
 //------------------------------------------------------------------------------------
 Filler::Filler()
@@ -385,7 +430,7 @@ void Filler::on_mouse_moved   (const ToolAction &action)
 
 const char *Filler::get_texture_name() const
 {
-    return "assets/filler.png";
+    return "skins/filler.png";
 }
 //------------------------------------------------------------------------------------
 Pipette::Pipette()
@@ -416,6 +461,81 @@ void Pipette::on_mouse_moved   (const ToolAction &action)
 
 const char *Pipette::get_texture_name() const
 {
-    return "assets/pipette.png";
+    return "skins/pipette.png";
+}
+//------------------------------------------------------------------------------------
+Brush::Brush()
+  : Tool(),
+    thickness_(DEFAULT_TOOL_BRUSH_RADIUS)
+{
+    is_to_change_ = true;
 }
 
+Brush::~Brush()
+{}
+
+void Brush::on_mouse_pressed(const ToolAction &action)
+{
+    draw_circle(action.image, action.point, PaintEditor::application_->basic_colors.foreground_color, thickness_);
+    if (action.shift)
+    {
+        draw_line(action.image, prev_point_, action.point, PaintEditor::application_->basic_colors.foreground_color,
+                  draw_circle, thickness_);
+    }
+    prev_point_ = action.point;
+    is_pressed_ = true;
+}
+
+void Brush::on_mouse_released(const ToolAction &action)
+{
+    is_pressed_ = false;
+}
+
+void Brush::on_mouse_moved(const ToolAction &action)
+{
+    if (is_pressed_)
+    {
+        draw_line(action.image, prev_point_, action.point, PaintEditor::application_->basic_colors.foreground_color,
+                  draw_circle, thickness_);
+        prev_point_ = action.point;
+    }
+}
+
+const char *Brush::get_texture_name() const
+{
+    return "skins/brush.png";
+}
+//-------------------------------------------------------------------
+Eraser::Eraser()
+  : Brush()
+{}
+
+Eraser::~Eraser()
+{}
+
+void Eraser::on_mouse_pressed(const ToolAction &action)
+{
+    draw_circle(action.image, action.point, PaintEditor::application_->basic_colors.background_color, thickness_);
+    if (action.shift)
+    {
+        draw_line(action.image, prev_point_, action.point, PaintEditor::application_->basic_colors.background_color,
+                draw_circle, thickness_);
+    }
+    prev_point_ = action.point;
+    is_pressed_ = true;
+}
+
+void Eraser::on_mouse_moved(const ToolAction &action)
+{
+    if (is_pressed_)
+    {
+        draw_line(action.image, prev_point_, action.point, PaintEditor::application_->basic_colors.background_color,
+                  draw_circle, thickness_);
+        prev_point_ = action.point;
+    }
+}
+
+const char *Eraser::get_texture_name() const
+{
+    return "skins/eraser.png";
+}

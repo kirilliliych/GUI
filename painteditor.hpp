@@ -5,6 +5,7 @@
 #include "canvas.hpp"
 #include "containerwidget.hpp"
 #include "defaulttools.hpp"
+
 #include "sidepanel.hpp"
 
 
@@ -21,6 +22,13 @@ struct ApplicationContext
     Color foreground_color = *DEFAULT_FOREGROUND_COLOR;
     Color background_color = *DEFAULT_BACKGROUND_COLOR;
 };
+
+struct PureColors
+{
+    uint32_t fg_color = DEFAULT_FOREGROUND_COLOR->get_uint32_color();
+    uint32_t bg_color = DEFAULT_BACKGROUND_COLOR->get_uint32_color();
+};
+
 
 class PaintEditor : public ContainerWidget
 {
@@ -55,6 +63,8 @@ public:
     SidePanel *side_panel_ = nullptr;
 
     ApplicationContext basic_colors;
+    PureColors context;
+    
 //----------------------------------------------------------
 };
 
