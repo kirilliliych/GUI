@@ -55,7 +55,7 @@ public:
     
 
 private:
-public:
+//public:
 
     void update_texture_();
 

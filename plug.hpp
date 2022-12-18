@@ -3,7 +3,8 @@
 
 const int FILTER_ZONE_WIDTH  = 3;
 const int FILTER_ZONE_HEIGHT = 3;
-const int FILTER_ZONE_PIXELS_QUANTITY_SQUARE = 9;
+
+static const booba::GUID PLUGIN_GUID = {"a697f375-fb4d-46a9-abb3-fea886d6e712"};
 
 
 class MedianFilter : public booba::Tool

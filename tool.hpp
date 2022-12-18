@@ -25,19 +25,19 @@ public:
     {}
 
     virtual ~Tool()
-    {}
+    {
+        delete zone_;
+    }
 //-----------------------------------------------------
-
     virtual void on_mouse_pressed (const ToolAction &action) = 0;
     virtual void on_mouse_released(const ToolAction &action) = 0;
     virtual void on_mouse_moved   (const ToolAction &action) = 0;
+    virtual void on_mouse_left    (const ToolAction &action) = 0;
+    virtual void on_timer_event   (const ToolAction &action) = 0;
     virtual const char *get_texture_name() const             = 0;
-    virtual void create_zone(const Rectangle &rectangle, ContainerWidget *parent)
+    virtual void create_zone()
     {
-        if (zone_ == nullptr)
-        {
-            zone_ = new PluginZone(rectangle, "Zone for plugin", parent);
-        }
+        std::cout << "called Tool::create_zone function, fictive" << std::endl;
     }
 
     ContainerWidget *get_zone()

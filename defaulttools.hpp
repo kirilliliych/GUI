@@ -30,6 +30,8 @@ public:
     virtual void on_mouse_pressed (const ToolAction &action) override;
     virtual void on_mouse_released(const ToolAction &action) override;
     virtual void on_mouse_moved   (const ToolAction &action) override;
+    virtual void on_mouse_left    (const ToolAction &action) override;
+    virtual void on_timer_event   (const ToolAction &action) override;
     virtual const char *get_texture_name() const override;
 //---------------------------Variables-------------------------------
 private:
@@ -51,6 +53,8 @@ public:
     virtual void on_mouse_pressed (const ToolAction &action) override;
     virtual void on_mouse_released(const ToolAction &action) override;
     virtual void on_mouse_moved   (const ToolAction &action) override;
+    virtual void on_mouse_left    (const ToolAction &action) override;
+    virtual void on_timer_event   (const ToolAction &action) override;
     virtual const char *get_texture_name() const override;
 //---------------------------Variables-------------------------------
 protected:
@@ -88,6 +92,8 @@ public:
     virtual void on_mouse_pressed (const ToolAction &action) override;
     virtual void on_mouse_released(const ToolAction &action) override;
     virtual void on_mouse_moved   (const ToolAction &action) override;
+    virtual void on_mouse_left    (const ToolAction &action) override;
+    virtual void on_timer_event   (const ToolAction &action) override;
     virtual const char *get_texture_name() const override;
 //---------------------------Variables-------------------------------
 protected:
@@ -125,6 +131,8 @@ public:
     virtual void on_mouse_pressed (const ToolAction &action) override;
     virtual void on_mouse_released(const ToolAction &action) override;
     virtual void on_mouse_moved   (const ToolAction &action) override;
+    virtual void on_mouse_left    (const ToolAction &action) override;
+    virtual void on_timer_event   (const ToolAction &action) override;
     virtual const char *get_texture_name() const override;
 //---------------------------Variables-------------------------------
 private:
@@ -144,6 +152,8 @@ public:
     virtual void on_mouse_pressed (const ToolAction &action) override;
     virtual void on_mouse_released(const ToolAction &action) override;
     virtual void on_mouse_moved   (const ToolAction &action) override;
+    virtual void on_mouse_left    (const ToolAction &action) override;
+    virtual void on_timer_event   (const ToolAction &action) override;
     virtual const char *get_texture_name() const override;
 };
 
@@ -159,6 +169,8 @@ public:
     virtual void on_mouse_pressed (const ToolAction &action) override;
     virtual void on_mouse_released(const ToolAction &action) override;
     virtual void on_mouse_moved   (const ToolAction &action) override;
+    virtual void on_mouse_left    (const ToolAction &action) override;
+    virtual void on_timer_event   (const ToolAction &action) override;
     virtual const char *get_texture_name() const override;
 //---------------------------Variables-------------------------------
 protected:

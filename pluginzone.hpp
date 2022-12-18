@@ -12,7 +12,7 @@ class PluginZone : public ContainerWidget
 {
 public:
 //-------------------------------------------------------------------
-    PluginZone(const Rectangle &rectangle, const char *title, ContainerWidget *parent);
+    PluginZone(const Rectangle &rectangle, const char *title, ContainerWidget *parent = nullptr);
 
     ~PluginZone();
 //-------------------------------------------------------------------

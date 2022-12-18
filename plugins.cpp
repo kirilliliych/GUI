@@ -2,7 +2,6 @@
 #include <filesystem>
 #include "painteditor.hpp"
 #include "plugins.hpp"
-#include "tools.hpp"
 
 
 static const char *PLUGINS_DIR = "./plugins/";
@@ -44,7 +43,7 @@ void set_basic_event_mbedata(const ToolAction &action, booba::Event *event)     
 }
 
 
-void import_plugins()
+void import_plugins(std::vector<Plugin> &plugins)
 {
     booba::APPCONTEXT = reinterpret_cast<booba::ApplicationContext *> (&PaintEditor::application_->context);
 
@@ -56,26 +55,58 @@ void import_plugins()
         {
             std::cout << "Module found" << std::endl;
 
-            void *lib = dlopen(cur_path.c_str(), RTLD_LAZY);
-            char *errr = dlerror();
-            std::cout << errr << std::endl;
+            void *lib_ptr = dlopen(cur_path.c_str(), RTLD_LAZY);
+            char *dlerr = dlerror();
+            if (dlerr != nullptr)
+            {
+                std::cerr << dlerr << std::endl;
+            }
 
-            void (*init_func)(void) = reinterpret_cast<void (*)()> (dlsym(lib, "init_module"));
+            booba::GUID (*GUID_func)(void) = reinterpret_cast<booba::GUID (*)()> (dlsym(lib_ptr, "getGUID"));
+            if (GUID_func == nullptr)
+            {
+                std::cerr << "Plugin " << file.path().filename().c_str() << " does not contain getGUID() function. Considered invalid" << std::endl;
 
-            std::cout << "Init_module address: " << reinterpret_cast<void *> (init_func) << std::endl;
+                continue;
+            }
 
-            (*init_func)();
+            booba::GUID cur_plugin_guid = (*GUID_func)();
+            if (cur_plugin_guid.str[36] != 0)
+            {
+                std::cerr << "Plugin " << file.path().filename().c_str() << " contains invalid GUID. Considered invalid" << std::endl;
+
+                continue;
+            }
+
+            plugins.push_back(Plugin{cur_plugin_guid, lib_ptr});
         }
     }
+
+    std::cout << "Plugin loading finished. Starting initialization" << std::endl;
+
+    for (int i = 0; i < plugins.size(); ++i)
+    {
+        void (*init_func)(void) = reinterpret_cast<void (*)()> (dlsym(plugins[i].library, "init_module"));
+
+        if (init_func == nullptr)
+        {
+            std::cout << "Plugin with GUID " << plugins[i].guid.str << " does not contain init_module function. Considered invalid" << std::endl;
+
+            continue;
+        }
+
+        std::cout << "Init_module address: " << reinterpret_cast<void *> (init_func) << std::endl;
+        (*init_func)();
+    }
+
+    std::cout << "Plugin initialization finished" << std::endl;
 }
 
 //-------------------------------------------------------------------
 PluginTool::PluginTool(booba::Tool *tool)
   : tool_(tool),
     texture_file_name_(form_file_path(tool->getTexture()))
-{
-
-}
+{}
 
 PluginTool::~PluginTool()
 {
@@ -129,19 +160,73 @@ void PluginTool::on_mouse_moved(const ToolAction &action)
     tool_->apply(&cur_image, &event_);
 }
 
+void PluginTool::on_mouse_left(const ToolAction &action)
+{
+    cur_plugin_ = this;
+
+    event_.type = booba::EventType::CanvasMLeft;
+    
+    PluginImage cur_image(action.image);
+    tool_->apply(&cur_image, &event_);
+}
+
+void PluginTool::on_timer_event(const ToolAction &action)
+{
+    cur_plugin_= this;
+
+    event_.type = booba::EventType::TimerEvent;
+    std::chrono::system_clock::time_point cur_time = std::chrono::high_resolution_clock::now();
+    event_.Oleg.tedata.time = std::chrono::duration_cast<std::chrono::milliseconds> (cur_time - PaintEditor::application_->beginning_time).count();
+
+    PluginImage cur_image(action.image);
+    tool_->apply(&cur_image, &event_);
+}
+
+
 const char *PluginTool::get_texture_name() const
 {
     return texture_file_name_.c_str();
 }
 
-void PluginTool::create_zone(const Rectangle &rectangle, ContainerWidget *parent)
+void PluginTool::create_zone()
 {
     cur_plugin_ = this;
 
     //printf("PluginTool create_zone\n");
-    Tool::create_zone(rectangle, parent);
     tool_->buildSetupWidget();
+    if (zone_ == nullptr)
+    {
+        create_default_zone();
+    }
 }
+
+void PluginTool::create_default_zone()
+{
+    assert(zone_ == nullptr);           // should be called ONLY IF THERE IS NO SPECIFIED PLACE FOR PLUGIN STUFF BEFORE AND PLUGIN ZONE SIZE WAS NOT SPECIALIZED 
+
+    cur_plugin_ = this;
+
+    zone_ = new PluginZone(Rectangle{0, 0, 1000, 1000}, "DefaultPluginZone", PaintEditor::application_);
+}
+
+bool PluginTool::set_toolbar_size(size_t width, size_t height)
+{
+    if (zone_ != nullptr)
+    {
+        std::cout << "set_toolbar_size failed: there is plugin zone created already" << std::endl;
+
+        return false;
+    }
+    if ((width > 1920) || (height > 1920))
+    {
+        std::cout << "set_toolbar_size failed: attempt to create too large toolbar" << std::endl;
+    }
+
+    zone_ = new PluginZone(Rectangle{0, 0, static_cast<int> (width), static_cast<int> (height)}, "DefaultPluginZone", PaintEditor::application_);
+
+    return zone_ == nullptr ? false : true;
+}
+
 
 void PluginTool::on_button_clicked(const PluginButton *button)
 {
@@ -154,13 +239,13 @@ void PluginTool::on_button_clicked(const PluginButton *button)
     tool_->apply(nullptr, &event_); // better not nullptr but still pluginimage?
 }
 
-void PluginTool::on_slider_moved(int32_t value, const PluginSlider *slider)
+void PluginTool::on_slider_moved(int64_t value, const PluginSlider *slider)
 {
     cur_plugin_ = this;
 
     event_.Oleg.smedata.id    = reinterpret_cast<uint64_t> (slider);
     event_.Oleg.smedata.value = value;
-    event_.type = booba::EventType::ScrollbarMoved; 
+    event_.type = booba::EventType::SliderMoved; 
 
     tool_->apply(nullptr, &event_);
 }
@@ -217,7 +302,7 @@ PluginSlider::PluginSlider(const Rectangle &rectangle, Widget *parent)
 PluginSlider::~PluginSlider()
 {}
 
-void PluginSlider::value_change(int32_t value)
+void PluginSlider::value_change(int64_t value)
 {
     value_changed.emit(value, this);
 }
@@ -229,23 +314,43 @@ PluginCanvas::PluginCanvas(const Rectangle &rectangle, Widget *parent)
 PluginCanvas::~PluginCanvas()
 {}
 
-void PluginCanvas::putPixel(int32_t x, int32_t y, Color color)
+void PluginCanvas::set_pixel(size_t x, size_t y, Color color)
 {
     assert(x >= 0);
     assert(y >= 0);
     assert(x < surface_->get_size().x);
     assert(y < surface_->get_size().y);
 
-    surface_->draw_point(Point2d{x, y}, color); 
+    surface_->draw_point(Point2d{static_cast<int> (x), static_cast<int> (y)}, color); 
 }
 
-void PluginCanvas::putSprite(int32_t x, int32_t y, uint32_t w, uint32_t h, const char *texture)
+void PluginCanvas::put_sprite(size_t x, size_t y, size_t w, size_t h, const char *texture)
 {
+    std::string real_texture_path = form_file_path(texture);
+    std::cout << "Plugin asked for " << real_texture_path.c_str() << std::endl;
+    if (real_texture_path == std::string())
+    {
+        std::cerr << "Invalid texture name" << std::endl;
+
+        return;
+    }
+    if (!std::filesystem::exists(real_texture_path))
+    {
+        std::cerr << real_texture_path.c_str() << " does not exist" << std::endl;
+
+        return;
+    }
+
     Texture temp_texture{form_file_path(texture).c_str()};
-    assert(form_file_path(texture) != std::string());
 
     Sprite temp_sprite{temp_texture, Rectangle{0, 0, static_cast<int> (w), static_cast<int> (h)}};
-    surface_->draw_sprite(Point2d{x, y}, temp_sprite);
+    surface_->draw_sprite(Point2d{static_cast<int> (x), static_cast<int> (y)}, temp_sprite);
+}
+
+void PluginCanvas::clear(const Color &color)
+{
+    surface_->clear();
+    surface_->update();
 }
 
 EventHandlerState PluginCanvas::on_mouse_button_pressed_event(const Event *event)
@@ -318,21 +423,21 @@ bool PluginImage::contains(int x, int y) const
            (y < image_->get_height());
 }
 
-uint32_t PluginImage::getW()
+size_t PluginImage::getW()
 {
-    return static_cast<uint32_t> (image_->get_width());
+    return static_cast<size_t> (image_->get_width());
 }
-uint32_t PluginImage::getH()
+size_t PluginImage::getH()
 {
-    return static_cast<uint32_t> (image_->get_height());
+    return static_cast<size_t> (image_->get_height());
 }
 
-uint32_t PluginImage::getPixel(int32_t x, int32_t y) const
+uint32_t PluginImage::getPixel(size_t x, size_t y) const
 {
     return (const_cast<PluginImage *> (this))->getPixel(x, y);
 }
 
-uint32_t PluginImage::getPixel(int32_t x, int32_t y)
+uint32_t PluginImage::getPixel(size_t x, size_t y)
 {
     if (!contains(x, y))
     {
@@ -344,7 +449,7 @@ uint32_t PluginImage::getPixel(int32_t x, int32_t y)
     return image_->get_pixel(x, y).get_uint32_color();
 }
 
-void PluginImage::putPixel(uint32_t x, uint32_t y, uint32_t color)
+void PluginImage::setPixel(size_t x, size_t y, uint32_t color)
 {
     if (!contains(x, y))
     {
@@ -352,22 +457,21 @@ void PluginImage::putPixel(uint32_t x, uint32_t y, uint32_t color)
     }
     
     image_->set_pixel(x, y, Color{color});
-}  
-
-uint32_t &PluginImage::operator ()(uint32_t x, uint32_t y)
-{
-    pixel_to_return_ = getPixel(static_cast<int32_t> (x), static_cast<int32_t> (y));
-
-    return pixel_to_return_;
-}
-const uint32_t &PluginImage::operator ()(uint32_t x, uint32_t y) const
-{
-    return const_cast<const uint32_t &> ((const_cast<PluginImage *> (this))->operator()(x, y));
 }
 //-------------------------------------------------------------------
 namespace booba
 {
-    extern "C" uint64_t createButton(int32_t x, int32_t y, uint32_t w, uint32_t h, const char *text)
+    extern "C" bool setToolBarSize(size_t w, size_t h)
+    {
+        if (PluginTool::cur_plugin_ == nullptr)
+        {
+            return 0;
+        }
+
+        return PluginTool::cur_plugin_->set_toolbar_size(w, h);
+    }
+
+    extern "C" uint64_t createButton(size_t x, size_t y, size_t w, size_t h, const char *text)
     {   
         //printf("createButtoncalled\n");
         if (PluginTool::cur_plugin_ == nullptr)
@@ -375,14 +479,18 @@ namespace booba
             return 0;
         }
 
-        PluginButton *new_button = new PluginButton(Rectangle{x, y, static_cast<int> (w), static_cast<int> (h)}, text, PluginTool::cur_plugin_->get_zone());
+        PluginButton *new_button = new PluginButton(Rectangle{static_cast<int> (x),
+                                                              static_cast<int> (y),
+                                                              static_cast<int> (w),
+                                                              static_cast<int> (h)
+                                                             }, text, PluginTool::cur_plugin_->get_zone());
         assert(PluginTool::cur_plugin_->get_zone() != nullptr);
         connect(new_button, &PluginButton::clicked, PluginTool::cur_plugin_, &PluginTool::on_button_clicked);
 
         return reinterpret_cast<uint64_t> (new_button);
     }
 
-    extern "C" uint64_t createLabel(int32_t x, int32_t y, uint32_t w, uint32_t h, const char* text)
+    extern "C" uint64_t createLabel(size_t x, size_t y, size_t w, size_t h, const char *text)
     {
         //printf("createLabelcall\n");   
         if (PluginTool::cur_plugin_ == nullptr)
@@ -390,13 +498,17 @@ namespace booba
             return 0;
         }
 
-        Text *new_text = new Text(text, Rectangle{x, y, static_cast<int> (w), static_cast<int> (h)}, PluginTool::cur_plugin_->get_zone());
+        Text *new_text = new Text(text, Rectangle{static_cast<int> (x),
+                                                  static_cast<int> (y),
+                                                  static_cast<int> (w),
+                                                  static_cast<int> (h)},
+                                        PluginTool::cur_plugin_->get_zone());
         assert(PluginTool::cur_plugin_->get_zone() != nullptr);
         
         return reinterpret_cast<uint64_t> (new_text);
     }
 
-    extern "C" uint64_t createScrollbar(int32_t x, int32_t y, uint32_t w, uint32_t h, int32_t maxValue, int32_t startValue)
+    extern "C" uint64_t createSlider(size_t x, size_t y, size_t w, size_t h, int64_t minValue, int64_t maxValue, int64_t startValue)
     {
         // NOT FULLY IMPLEMENTED
         //printf("createScrollbarcalled\n");
@@ -406,13 +518,18 @@ namespace booba
             return 0;
         }
 
-        Widget *stub = new Widget(Rectangle{x, y, static_cast<int> (w), static_cast<int> (h)}, PluginTool::cur_plugin_->get_zone());
+        Widget *stub = new Widget(Rectangle{static_cast<int> (x),
+                                            static_cast<int> (y),
+                                            static_cast<int> (w),
+                                            static_cast<int> (h)
+                                           },
+                                PluginTool::cur_plugin_->get_zone());
         assert(PluginTool::cur_plugin_->get_zone() != nullptr);
 
         return reinterpret_cast<uint64_t> (stub);
     }
 
-    extern "C" uint64_t createCanvas(int32_t x, int32_t y, int32_t w, int32_t h)
+    extern "C" uint64_t createCanvas(size_t x, size_t y, size_t w, size_t h)
     {
         //printf("createCanvascalled\n");
         if (PluginTool::cur_plugin_ == nullptr)
@@ -420,7 +537,11 @@ namespace booba
             return 0;
         }
 
-        PluginCanvas *new_canvas = new PluginCanvas(Rectangle{x, y, static_cast<int> (w), static_cast<int> (h)}, PluginTool::cur_plugin_->get_zone());
+        PluginCanvas *new_canvas = new PluginCanvas(Rectangle{static_cast<int> (x),
+                                                              static_cast<int> (y),
+                                                              static_cast<int> (w),
+                                                              static_cast<int> (h)},
+                                                    PluginTool::cur_plugin_->get_zone());
         assert(PluginTool::cur_plugin_->get_zone() != nullptr);
         connect(new_canvas, &PluginCanvas::mouse_button_released, PluginTool::cur_plugin_, &PluginTool::on_canvas_event);
         connect(new_canvas, &PluginCanvas::mouse_button_pressed,  PluginTool::cur_plugin_, &PluginTool::on_canvas_event);
@@ -429,19 +550,19 @@ namespace booba
         return reinterpret_cast<uint64_t> (new_canvas);
     }
 
-    extern "C" void putPixel(uint64_t canvas, int32_t x, int32_t y, uint32_t color)
+    extern "C" void putPixel(uint64_t canvas, size_t x, size_t y, uint32_t color)
     {
-        printf("putPixelcalled\n");
+        //printf("putPixelcalled\n");
         if (canvas == 0)
         {
             return;
         }
 
         PluginCanvas *canvas_ptr = reinterpret_cast<PluginCanvas *> (canvas);
-        canvas_ptr->putPixel(x, y, color);
+        canvas_ptr->set_pixel(x, y, color);
     }
 
-    extern "C" void putSprite(uint64_t canvas, int32_t x, int32_t y, uint32_t w, uint32_t h, const char* texture)
+    extern "C" void putSprite(uint64_t canvas, size_t x, size_t y, size_t w, size_t h, const char *texture)
     {
         //printf("putSpritecalled\n");
         if (canvas == 0)
@@ -450,8 +571,20 @@ namespace booba
         }
 
         PluginCanvas *canvas_ptr = reinterpret_cast<PluginCanvas *> (canvas);
-        canvas_ptr->putSprite(x, y, w, h, texture);
+        canvas_ptr->put_sprite(x, y, w, h, texture);
     }
+
+    extern "C" void cleanCanvas(uint64_t canvasId, uint32_t color)
+    {
+        if (canvasId == 0)
+        {
+            return;
+        }
+
+        PluginCanvas *canvas_ptr = reinterpret_cast<PluginCanvas *> (canvasId);
+        canvas_ptr->clear(Color{color});
+    }
+
 
     extern "C" void addTool(booba::Tool *tool)
     {
@@ -465,9 +598,34 @@ namespace booba
         PaintEditor::application_->add_tool(new PluginTool(tool));
     }
 
-    Image::~Image()
-    {}
 
-    Tool::~Tool()
-    {}
+    extern "C" void* getLibSymbol(GUID guid, const char *name)
+    {
+        for (int plugin_index = 0; plugin_index < PaintEditor::application_->plugins_.size(); ++plugin_index)
+        {
+            if (strncmp(guid.str, PaintEditor::application_->plugins_[plugin_index].guid.str, sizeof(guid.str)) == 0)
+            {
+                void *sym_place = dlsym(PaintEditor::application_->plugins_[plugin_index].library, name);
+                char *dlerr = dlerror();
+                if (dlerr != nullptr)
+                {
+                    fprintf(stderr, "%s\n", dlerr);
+                    fprintf(stderr, "%s ", name);
+                    fprintf(stderr, "was not found via dlsym\n");
+
+                    return nullptr;
+                }
+
+                return sym_place;
+            }
+        }
+
+        return nullptr;
+    }
+
+    // Image::~Image()
+    // {}
+
+    // Tool::~Tool()
+    // {}
 }

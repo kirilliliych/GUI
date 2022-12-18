@@ -16,13 +16,6 @@
 #include "surface.hpp"
 
 
-struct ShiftAltCtrl
-{
-    bool shift = false;
-    bool alt   = false;
-    bool ctrl  = false;
-};
-
 static const Color *DEFAULT_WIDGET_COLOR                 = &LIGHT_GREY;
 static const Color *FOCUSED_WIDGET_FRAME_COLOR           = &ORANGE; 
 static const Color *UNFOCUSED_WIDGET_FRAME_COLOR         = &LIGHT_GREY;

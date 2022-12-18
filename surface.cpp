@@ -16,6 +16,7 @@ bool Surface::create(int width, int height)
 void Surface::clear(const Color &color)
 {
     surface_.clear(sf::Color(color.get_uint32_color()));
+    
 }
 
 void Surface::update()

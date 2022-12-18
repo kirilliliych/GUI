@@ -36,17 +36,6 @@ int brightness_comparator(const void *pixel1, const void *pixel2)
            ((pixel2_brightness - pixel1_brightness) <= comparison_delta) ? 0 : -1;  
 }
 
-// int brightness_comparator(const void *pixel1, const void *pixel2)
-// {
-//     assert(pixel1 != nullptr);
-//     assert(pixel2 != nullptr);
-
-//     const uint32_t val1 = *(reinterpret_cast<const uint32_t *> (pixel1));
-//     const uint32_t val2 = *(reinterpret_cast<const uint32_t *> (pixel2));
-
-//     return val1 > val2 ? 1 : val1 == val2 ? 0 : -1;
-// }
-
 void MedianFilter::apply(booba::Image* image, const booba::Event* event)
 {
     if ((event->type == booba::EventType::MousePressed) && (event->Oleg.mbedata.button == booba::MouseButton::Left))
@@ -82,9 +71,8 @@ void MedianFilter::apply(booba::Image* image, const booba::Event* event)
                         buffer[fy * zone_width + fx] = old_pixmap[(y + fy - edge_y) * image_width + x + fx - edge_x];
                     }
                 }
-
                 qsort(buffer, zone_width * zone_height, sizeof(uint32_t), brightness_comparator);
-                image->putPixel(x, y, buffer[edge_y * zone_width + edge_x]);
+                image->setPixel(x, y, buffer[edge_y * zone_width + edge_x]);
             }
         }
 
@@ -92,8 +80,13 @@ void MedianFilter::apply(booba::Image* image, const booba::Event* event)
     }
 }
 
+
 extern "C" void init_module()
 {
     addFilter(new MedianFilter);
 }
 
+extern "C" booba::GUID getGUID()
+{
+    return PLUGIN_GUID;
+} 

@@ -7,11 +7,17 @@
 #include "image.hpp"
 #include "text.hpp"
 #include "tools.hpp"
-#include <unistd.h>
 
 
 class PluginButton;
 class PluginSlider;
+
+
+struct Plugin
+{
+    booba::GUID guid;
+    void *library;
+};
 
 
 class PluginTool : public Tool, public SignalObject
@@ -27,11 +33,17 @@ public:
     void on_mouse_pressed(const ToolAction &action) override;
     void on_mouse_released(const ToolAction &action) override;
     void on_mouse_moved(const ToolAction &action) override;
+    void on_mouse_left(const ToolAction &action) override;
+    void on_timer_event(const ToolAction &action) override;
     const char *get_texture_name() const override;
-    void create_zone(const Rectangle &rectangle, ContainerWidget *parent) override;
+
+    void create_zone() override;
+    void create_default_zone();
+
+    bool set_toolbar_size(size_t width, size_t height);
 
     void on_button_clicked(const PluginButton *button);
-    void on_slider_moved(int32_t value, const PluginSlider *slider);
+    void on_slider_moved(int64_t value, const PluginSlider *slider);
     void on_canvas_event(const booba::Event event);
 //---------------------------Variables-------------------------------
 private:
@@ -75,7 +87,7 @@ public:
 
     ~PluginSlider();
 //-------------------------------------------------------------------
-    void value_change(int32_t value);
+    void value_change(int64_t value);
 //---------------------------Variables-------------------------------
 public:
 
@@ -91,8 +103,9 @@ public:
 
     ~PluginCanvas();
 //-------------------------------------------------------------------
-    void putPixel (int32_t x, int32_t y, Color color);
-    void putSprite(int32_t x, int32_t y, uint32_t w, uint32_t h, const char *texture);
+    void set_pixel (size_t x, size_t y, Color color);
+    void put_sprite(size_t x, size_t y, size_t w, size_t h, const char *texture);
+    void clear(const Color &color);
 
     EventHandlerState on_mouse_button_pressed_event(const Event *event) override;
     EventHandlerState on_mouse_button_released_event(const Event *event) override;
@@ -117,18 +130,16 @@ public:
 //-------------------------------------------------------------------
     PluginImage(ImageSf *image);
 
-    virtual ~PluginImage() override;
+    virtual ~PluginImage();
 //-------------------------------------------------------------------
     bool contains(int x, int y) const;
 
-    virtual uint32_t getW() override;
-    virtual uint32_t getH() override;
+    virtual size_t getW() override;
+    virtual size_t getH() override;
     
-    uint32_t getPixel(int32_t x, int32_t y) const;
-    virtual uint32_t getPixel(int32_t x, int32_t y) override;
-    virtual void putPixel(uint32_t x, uint32_t y, uint32_t color) override;    
-    virtual uint32_t &operator ()(uint32_t x, uint32_t y) override;
-    virtual const uint32_t &operator ()(uint32_t x, uint32_t y) const override;
+    uint32_t getPixel(size_t x, size_t y) const;
+    virtual uint32_t getPixel(size_t x, size_t y) override;
+    virtual void setPixel(size_t x, size_t y, uint32_t color) override;
 //---------------------------Variables-------------------------------
 private:
 
@@ -141,7 +152,7 @@ std::string form_file_path(const char *file_name);
 
 void set_basic_event_mbedata(const ToolAction &action, booba::Event *event);
 
-void import_plugins();
+void import_plugins(std::vector<Plugin> &plugins);
 
 
 #endif

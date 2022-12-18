@@ -129,6 +129,14 @@ void Pencil::on_mouse_moved(const ToolAction &action)
     }
 }
 
+void Pencil::on_mouse_left(const ToolAction &action)
+{
+    is_pressed_ = false;
+}
+
+void Pencil::on_timer_event(const ToolAction &action)
+{}
+
 const char *Pencil::get_texture_name() const
 {
     return "skins/pencil.png";
@@ -177,6 +185,12 @@ void RectFiller::on_mouse_released(const ToolAction &action)
 {}
 
 void RectFiller::on_mouse_moved   (const ToolAction &action)
+{}
+
+void RectFiller::on_mouse_left    (const ToolAction &action)
+{}
+
+void RectFiller::on_timer_event   (const ToolAction &action)
 {}
 
 const char *RectFiller::get_texture_name() const
@@ -289,6 +303,12 @@ void EllipseFiller::on_mouse_released(const ToolAction &action)
 {}
 
 void EllipseFiller::on_mouse_moved   (const ToolAction &action)
+{}
+
+void EllipseFiller::on_mouse_left    (const ToolAction &action)
+{}
+
+void EllipseFiller::on_timer_event   (const ToolAction &action)
 {}
 
 const char *EllipseFiller::get_texture_name() const
@@ -428,6 +448,12 @@ void Filler::on_mouse_released(const ToolAction &action)
 void Filler::on_mouse_moved   (const ToolAction &action)
 {}
 
+void Filler::on_mouse_left    (const ToolAction &action)
+{}
+
+void Filler::on_timer_event   (const ToolAction &action)
+{}
+
 const char *Filler::get_texture_name() const
 {
     return "skins/filler.png";
@@ -457,6 +483,12 @@ void Pipette::on_mouse_released(const ToolAction &action)
 {}
 
 void Pipette::on_mouse_moved   (const ToolAction &action)
+{}
+
+void Pipette::on_mouse_left    (const ToolAction &action)
+{}
+
+void Pipette::on_timer_event   (const ToolAction &action)
 {}
 
 const char *Pipette::get_texture_name() const
@@ -500,6 +532,14 @@ void Brush::on_mouse_moved(const ToolAction &action)
         prev_point_ = action.point;
     }
 }
+
+void Brush::on_mouse_left(const ToolAction &action)
+{
+    is_pressed_ = false;
+}
+
+void Brush::on_timer_event(const ToolAction &action)
+{}
 
 const char *Brush::get_texture_name() const
 {

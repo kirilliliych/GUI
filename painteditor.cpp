@@ -12,7 +12,7 @@ PaintEditor::PaintEditor(const Rectangle &rectangle, ContainerWidget *parent)
     application_ = this;
 
     create_default_tools_();
-    import_plugins();
+    import_plugins(plugins_);
     
     Rectangle canvas_area = rectangle;
     canvas_area.set_x(canvas_area.get_x() + 25);

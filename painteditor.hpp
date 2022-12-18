@@ -5,6 +5,7 @@
 #include "canvas.hpp"
 #include "containerwidget.hpp"
 #include "defaulttools.hpp"
+#include "plugins.hpp"
 
 #include "sidepanel.hpp"
 
@@ -56,6 +57,10 @@ private:
 //------------------------Variables-------------------------
 public:
 
+    std::vector<Plugin> plugins_{};
+    
+    const std::chrono::system_clock::time_point beginning_time{};
+
     Tool *cur_tool_ = nullptr;
     std::vector<Tool *> tools_{};
 
@@ -64,7 +69,6 @@ public:
 
     ApplicationContext basic_colors;
     PureColors context;
-    
 //----------------------------------------------------------
 };
 
