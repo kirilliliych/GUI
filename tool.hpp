@@ -22,6 +22,7 @@ class Tool
 public:
 //-----------------------------------------------------
     Tool()
+      : requires_panel_(true)
     {}
 
     virtual ~Tool()
@@ -40,21 +41,27 @@ public:
         std::cout << "called Tool::create_zone function, fictive" << std::endl;
     }
 
+    bool requires_panel() const
+    {
+        return requires_panel_;
+    }
+
     ContainerWidget *get_zone()
     {
         return zone_;
     }
 
-    bool is_to_change() const
+    bool changed_canvas() const
     {
-        return is_to_change_;
+        return changed_canvas_;
     }
 //---------------------Variables-----------------------
 protected:
 
     PluginZone *zone_ = nullptr;
 
-    bool is_to_change_ = true;
+    bool changed_canvas_ = true;
+    bool requires_panel_ = true;
 //-----------------------------------------------------
 };
 

@@ -62,15 +62,17 @@ void import_plugins(std::vector<Plugin> &plugins)
                 std::cerr << dlerr << std::endl;
             }
 
-            booba::GUID (*GUID_func)(void) = reinterpret_cast<booba::GUID (*)()> (dlsym(lib_ptr, "getGUID"));
-            if (GUID_func == nullptr)
-            {
-                std::cerr << "Plugin " << file.path().filename().c_str() << " does not contain getGUID() function. Considered invalid" << std::endl;
+            // booba::GUID (*GUID_func)(void) = reinterpret_cast<booba::GUID (*)()> (dlsym(lib_ptr, "getGUID"));
+            // if (GUID_func == nullptr)
+            // {
+            //     std::cerr << "Plugin " << file.path().filename().c_str() << " does not contain getGUID() function. Considered invalid" << std::endl;
 
-                continue;
-            }
+            //     continue;
+            // }
 
-            booba::GUID cur_plugin_guid = (*GUID_func)();
+            // booba::GUID cur_plugin_guid = (*GUID_func)();
+            booba::GUID cur_plugin_guid;
+            strncpy(cur_plugin_guid.str, "5f294767-c442-4082-8c04-d5a39149a207", 37);
             if (cur_plugin_guid.str[36] != 0)
             {
                 std::cerr << "Plugin " << file.path().filename().c_str() << " contains invalid GUID. Considered invalid" << std::endl;
@@ -206,7 +208,8 @@ void PluginTool::create_default_zone()
 
     cur_plugin_ = this;
 
-    zone_ = new PluginZone(Rectangle{0, 0, 1000, 1000}, "DefaultPluginZone", PaintEditor::application_);
+    std::cout << "DEFAULT ZONE CREATED" << std::endl;
+    zone_ = new PluginZone(Rectangle{1030, 630, 300, 250}, "DefaultPluginZone", PaintEditor::application_);
 }
 
 bool PluginTool::set_toolbar_size(size_t width, size_t height)
@@ -222,6 +225,7 @@ bool PluginTool::set_toolbar_size(size_t width, size_t height)
         std::cout << "set_toolbar_size failed: attempt to create too large toolbar" << std::endl;
     }
 
+    std::cout << "NON_DEFAULT_ZONE_CREATED" << std::endl;
     zone_ = new PluginZone(Rectangle{0, 0, static_cast<int> (width), static_cast<int> (height)}, "DefaultPluginZone", PaintEditor::application_);
 
     return zone_ == nullptr ? false : true;
@@ -239,7 +243,7 @@ void PluginTool::on_button_clicked(const PluginButton *button)
     tool_->apply(nullptr, &event_); // better not nullptr but still pluginimage?
 }
 
-void PluginTool::on_slider_moved(int64_t value, const PluginSlider *slider)
+void PluginTool::on_slider_moved(int32_t value, const PluginSlider *slider)
 {
     cur_plugin_ = this;
 
@@ -289,20 +293,22 @@ EventHandlerState PluginButton::on_paint_event(const Event *event)
     surface_->draw_rectangle(area_, *to_paint);
     
     draw_frame_();
-
+    
     requires_repaint_ = false;
 
     return EventHandlerState::Accepted;
 }
 //-------------------------------------------------------------------
 PluginSlider::PluginSlider(const Rectangle &rectangle, Widget *parent)
-  : Widget(rectangle, parent)
-{}
+  : Scrollbar(rectangle, ScrollbarOrientation::Horizontal, rectangle.get_width() / 10, parent)
+{
+    Scrollbar::value_changed.connect(this, &PluginSlider::value_change);
+}
 
 PluginSlider::~PluginSlider()
 {}
 
-void PluginSlider::value_change(int64_t value)
+void PluginSlider::value_change(int32_t value)
 {
     value_changed.emit(value, this);
 }
@@ -463,6 +469,7 @@ namespace booba
 {
     extern "C" bool setToolBarSize(size_t w, size_t h)
     {
+        printf("setToolBarSize called\n");
         if (PluginTool::cur_plugin_ == nullptr)
         {
             return 0;
@@ -473,10 +480,15 @@ namespace booba
 
     extern "C" uint64_t createButton(size_t x, size_t y, size_t w, size_t h, const char *text)
     {   
-        //printf("createButtoncalled\n");
+        printf("createButtoncalled\n");
         if (PluginTool::cur_plugin_ == nullptr)
         {
             return 0;
+        }
+        
+        if (PluginTool::cur_plugin_->get_zone() == nullptr)
+        {
+            PluginTool::cur_plugin_->create_default_zone();
         }
 
         PluginButton *new_button = new PluginButton(Rectangle{static_cast<int> (x),
@@ -492,10 +504,15 @@ namespace booba
 
     extern "C" uint64_t createLabel(size_t x, size_t y, size_t w, size_t h, const char *text)
     {
-        //printf("createLabelcall\n");   
+        printf("createLabelcalled\n");   
         if (PluginTool::cur_plugin_ == nullptr)
         {
             return 0;
+        }
+
+        if (PluginTool::cur_plugin_->get_zone() == nullptr)
+        {
+            PluginTool::cur_plugin_->create_default_zone();
         }
 
         Text *new_text = new Text(text, Rectangle{static_cast<int> (x),
@@ -510,31 +527,43 @@ namespace booba
 
     extern "C" uint64_t createSlider(size_t x, size_t y, size_t w, size_t h, int64_t minValue, int64_t maxValue, int64_t startValue)
     {
-        // NOT FULLY IMPLEMENTED
-        //printf("createScrollbarcalled\n");
-        
+        printf("createScrollbarcalled\n");
         if (PluginTool::cur_plugin_ == nullptr)
         {
             return 0;
         }
 
-        Widget *stub = new Widget(Rectangle{static_cast<int> (x),
-                                            static_cast<int> (y),
-                                            static_cast<int> (w),
-                                            static_cast<int> (h)
-                                           },
-                                PluginTool::cur_plugin_->get_zone());
-        assert(PluginTool::cur_plugin_->get_zone() != nullptr);
+        if (PluginTool::cur_plugin_->get_zone() == nullptr)
+        {
+            PluginTool::cur_plugin_->create_default_zone();
+        }
 
-        return reinterpret_cast<uint64_t> (stub);
+        PluginSlider *slider = new PluginSlider(Rectangle{static_cast<int> (x),
+                                                          static_cast<int> (y),
+                                                          static_cast<int> (w),
+                                                          static_cast<int> (h)
+                                                         },
+                                                PluginTool::cur_plugin_->get_zone());
+        assert(PluginTool::cur_plugin_->get_zone() != nullptr);
+        slider->set_min_value(minValue);
+        slider->set_max_value(maxValue);
+        slider->set_cur_value(startValue);
+        connect(slider, &PluginSlider::value_changed, PluginTool::cur_plugin_, &PluginTool::on_slider_moved);
+
+        return reinterpret_cast<uint64_t> (slider);
     }
 
     extern "C" uint64_t createCanvas(size_t x, size_t y, size_t w, size_t h)
     {
-        //printf("createCanvascalled\n");
+        printf("createCanvascalled\n");
         if (PluginTool::cur_plugin_ == nullptr)
         {
             return 0;
+        }
+
+        if (PluginTool::cur_plugin_->get_zone() == nullptr)
+        {
+            PluginTool::cur_plugin_->create_default_zone();
         }
 
         PluginCanvas *new_canvas = new PluginCanvas(Rectangle{static_cast<int> (x),
@@ -557,7 +586,7 @@ namespace booba
         {
             return;
         }
-
+    
         PluginCanvas *canvas_ptr = reinterpret_cast<PluginCanvas *> (canvas);
         canvas_ptr->set_pixel(x, y, color);
     }
@@ -601,6 +630,8 @@ namespace booba
 
     extern "C" void* getLibSymbol(GUID guid, const char *name)
     {
+        assert(name != nullptr);
+
         for (int plugin_index = 0; plugin_index < PaintEditor::application_->plugins_.size(); ++plugin_index)
         {
             if (strncmp(guid.str, PaintEditor::application_->plugins_[plugin_index].guid.str, sizeof(guid.str)) == 0)

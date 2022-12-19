@@ -6,12 +6,8 @@
 #include "window.hpp"
 
 
-//redesign: header and frames, cross with each containerwidget except menubar и скрытие по нажатию, hsv, button_size to text, drag-n-drop
-// fix background color troubles сделать cropper
-//2 standart! 
+//todo: TOTAL REDESIGN, dialogwindow to brush, do dialogwindow, do textinput and cursor, do headers to widgets
 
-//saturday:: scrollbar, slider, hsv
-//sunday:: header and frames with closebutton, fixbutton, drag-n-drop
 
 int main()
 {

@@ -14,8 +14,8 @@
 #include "containerwidget.hpp"
 
 
-static const int STANDARD_WINDOW_WIDTH   = 1024;
-static const int STANDARD_WINDOW_HEIGHT  = 768;
+static const int STANDARD_WINDOW_WIDTH   = 1600;/*1024;*/
+static const int STANDARD_WINDOW_HEIGHT  = 900;/*768;*/
 
 
 static const char *STANDARD_WINDOW_NAME = "Gui";

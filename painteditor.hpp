@@ -6,7 +6,7 @@
 #include "containerwidget.hpp"
 #include "defaulttools.hpp"
 #include "plugins.hpp"
-
+#include "scrollbar.hpp"
 #include "sidepanel.hpp"
 
 
@@ -64,8 +64,10 @@ public:
     Tool *cur_tool_ = nullptr;
     std::vector<Tool *> tools_{};
 
-    Canvas *canvas_        = nullptr;
-    SidePanel *side_panel_ = nullptr;
+    Canvas *canvas_                = nullptr;
+    Scrollbar *canvas_x_scrollbar_ = nullptr;
+    Scrollbar *canvas_y_scrollbar_ = nullptr;
+    SidePanel *side_panel_         = nullptr;
 
     ApplicationContext basic_colors;
     PureColors context;

@@ -99,12 +99,51 @@ EventHandlerState ColorCell::on_mouse_button_released_event(const Event *event)
     if (is_pressed_ && (event->mbedata_.button == MouseButton::Left) && (area_.contains(event->mbedata_.position)))
     {
         // bool fore_or_back = shortcut_keys.ctrl ? true : false;
-        selected.emit(this, 0/*fore_or_back*/);
+        std::cout << "EMIT" << std::endl;
+        bool fore_or_back = with_ctrl_ ? true : false;
+        selected.emit(this, fore_or_back);
 
         is_pressed_ = false;
     }
 
     return Widget::on_mouse_button_released_event(event);
+}
+
+EventHandlerState ColorCell::on_key_pressed_event(const Event *event)
+{
+            std::cout << "registered ctrl" << std::endl;
+    switch (event->kedata_.key_code)
+    {
+        case KeyboardKey::LControl:
+        {
+            with_ctrl_ = true;
+
+            return EventHandlerState::Accepted;
+        }
+
+        default:
+        {
+            return Widget::on_key_pressed_event(event);
+        }
+    }
+}
+
+EventHandlerState ColorCell::on_key_released_event(const Event *event)
+{
+    switch (event->kedata_.key_code)
+    {
+        case KeyboardKey::LControl:
+        {
+            with_ctrl_ = false;
+
+            return EventHandlerState::Accepted;
+        }
+
+        default:
+        {
+            return Widget::on_key_pressed_event(event);
+        }
+    }
 }
 
 EventHandlerState ColorCell::on_paint_event(const Event *event)

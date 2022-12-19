@@ -50,13 +50,16 @@ public:
 //-------------------------------------------------------------------------------
     Color get_color() const;
 
-    EventHandlerState on_mouse_button_pressed_event(const Event *event) override;
+    EventHandlerState on_mouse_button_pressed_event (const Event *event) override;
     EventHandlerState on_mouse_button_released_event(const Event *event) override;
-    EventHandlerState on_paint_event(const Event *event) override;
+    EventHandlerState on_key_pressed_event (const Event *event) override;
+    EventHandlerState on_key_released_event(const Event *event) override;
+    EventHandlerState on_paint_event (const Event *event) override;
 //---------------------------Variables-------------------------------------------
 private:
 
     bool is_pressed_       = false;
+    bool with_ctrl_        = false;
     bool requires_repaint_ = true;
 
     Color color_{};

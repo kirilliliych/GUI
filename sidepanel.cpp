@@ -7,7 +7,7 @@ SidePanel::SidePanel(const Rectangle &rectangle, const std::vector<Tool *> &tool
     tool_panel_ = new ToolPanel(Rectangle{rectangle.get_x() + 5,
                                           rectangle.get_y() + 5,
                                           rectangle.get_width() - 5,
-                                          100},
+                                          140},
                                 tools, this);
 
     palette_ = new ColorPalette(Rectangle{rectangle.get_x() + 5,

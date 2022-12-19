@@ -5,6 +5,7 @@
 #include "button.hpp"
 #include "canvas.hpp"
 #include "image.hpp"
+#include "scrollbar.hpp"
 #include "text.hpp"
 #include "tools.hpp"
 
@@ -43,7 +44,7 @@ public:
     bool set_toolbar_size(size_t width, size_t height);
 
     void on_button_clicked(const PluginButton *button);
-    void on_slider_moved(int64_t value, const PluginSlider *slider);
+    void on_slider_moved(int32_t value, const PluginSlider *slider);
     void on_canvas_event(const booba::Event event);
 //---------------------------Variables-------------------------------
 private:
@@ -78,16 +79,15 @@ public:
 };
 
 
-class PluginSlider : public Widget
+class PluginSlider : public Scrollbar
 {
-// unimplemented, this is stub
 public:
 //-------------------------------------------------------------------
     PluginSlider(const Rectangle &rectangle, Widget *parent);
 
     ~PluginSlider();
 //-------------------------------------------------------------------
-    void value_change(int64_t value);
+    void value_change(int32_t value);
 //---------------------------Variables-------------------------------
 public:
 

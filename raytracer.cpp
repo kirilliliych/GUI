@@ -11,7 +11,7 @@ Raytracer::Raytracer(const Rectangle &rectangle, Widget *parent)
 {
     scene_->fill_scene(rectangle.get_width(), rectangle.get_height());
 
-    hide();
+    //hide();
 }
 
 Raytracer::~Raytracer()

@@ -81,12 +81,12 @@ void MedianFilter::apply(booba::Image* image, const booba::Event* event)
 }
 
 
-extern "C" void init_module()
-{
-    addFilter(new MedianFilter);
-}
+// extern "C" void init_module()
+// {
+//     addFilter(new MedianFilter);
+// }
 
-extern "C" booba::GUID getGUID()
-{
-    return PLUGIN_GUID;
-} 
+// extern "C" booba::GUID getGUID()
+// {
+//     return PLUGIN_GUID;
+// } 

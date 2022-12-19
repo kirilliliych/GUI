@@ -25,7 +25,7 @@ void Surface::update()
     update_texture_();
 }
 
-void Surface::draw_line(const Point2d &point1, const Point2d &point2, const Color color)
+void Surface::draw_line(const Point2d &point1, const Point2d &point2, const Color &color)
 {
     sf::Vertex vertices[2] = {};
     vertices[0].position = sf::Vector2f{point1.x, point1.y};
@@ -39,19 +39,23 @@ void Surface::draw_line(const Point2d &point1, const Point2d &point2, const Colo
 }
 
 
-void Surface::draw_rectangle(const Rectangle &rectangle, const Color color)
+void Surface::draw_rectangle(const Rectangle &rectangle, const Color &color)
 {
-    sf::RectangleShape temp_rect(sf::Vector2f{static_cast<float> (rectangle.get_width()),
-                                              static_cast<float> (rectangle.get_height())
-                                             });
-    temp_rect.setPosition(0, 0);
-    temp_rect.setFillColor(sf::Color(color.get_uint32_color()));
-
-    surface_.draw(temp_rect);
-    
-    update();
+    draw_rectangle(rectangle, {0, 0}, color);
 }
 
+void Surface::draw_rectangle(const Rectangle &rectangle, const Point2d &start, const Color &color)
+{
+    sf::RectangleShape temp_rect(sf::Vector2f{static_cast<float> (rectangle.get_width()),
+                                                static_cast<float> (rectangle.get_height())
+                                                });
+        temp_rect.setPosition(start.x, start.y);
+        temp_rect.setFillColor(sf::Color(color.get_uint32_color()));
+
+        surface_.draw(temp_rect);
+        
+        update();
+}
 
 void Surface::draw_image(const ImageSf &image)
 {

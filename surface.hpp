@@ -35,9 +35,11 @@ public:
 
     void update();
 
-    void draw_line(const Point2d &point1, const Point2d &point2, Color color);
+    void draw_line(const Point2d &point1, const Point2d &point2, const Color &color);
 
-    void draw_rectangle(const Rectangle &rectangle, Color color);
+    void draw_rectangle(const Rectangle &rectangle, const Color &color);
+
+    void draw_rectangle(const Rectangle &rectangle, const Point2d &point, const Color &color);
 
     void draw_image(const ImageSf &image);
 

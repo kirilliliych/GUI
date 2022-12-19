@@ -24,6 +24,14 @@ bool Texture::load_from_image(const ImageSf &image)
     return texture_.loadFromImage(image.image_);
 }
 
+ImageSf Texture::copy_to_image() const
+{
+    ImageSf temp_image{};
+    temp_image.image_ = texture_.copyToImage();
+    
+    return temp_image;
+}
+
 void Texture::set_repeated(bool is_repeated)
 {
     texture_.setRepeated(is_repeated);

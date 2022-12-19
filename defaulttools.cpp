@@ -97,7 +97,8 @@ double calc_color_norm(const Color &color1, const Color &color2)
 Pencil::Pencil()
   : Tool()
 {
-    is_to_change_ = true;
+    changed_canvas_ = true;
+    requires_panel_ = false;
 }
 
 Pencil::~Pencil()
@@ -145,7 +146,8 @@ const char *Pencil::get_texture_name() const
 RectFiller::RectFiller()
   : Tool()
 {
-    is_to_change_ = false;
+    changed_canvas_ = false;
+    requires_panel_ = false;
 }
 
 RectFiller::~RectFiller()
@@ -171,13 +173,13 @@ void RectFiller::on_mouse_pressed(const ToolAction &action)
         }
 
         registered_from_ = false;
-        is_to_change_    = false;
+        changed_canvas_  = true;
     }
     else
     {
         fill_from_ = action.point;
         registered_from_ = true;
-        is_to_change_    = true;
+        changed_canvas_  = false;
     }
 }
 
@@ -233,13 +235,13 @@ void Rect::on_mouse_pressed(const ToolAction &action)
         }
 
         registered_from_ = false;
-        is_to_change_    = false;
+        changed_canvas_  = true;
     }
     else
     {
         fill_from_ = action.point;
         registered_from_ = true;
-        is_to_change_    = true;
+        changed_canvas_  = false;
     }
 }
 
@@ -251,7 +253,8 @@ const char *Rect::get_texture_name() const
 EllipseFiller::EllipseFiller()
   : Tool()
 {
-    is_to_change_ = false;
+    changed_canvas_ = false;
+    requires_panel_ = false;
 }
 
 EllipseFiller::~EllipseFiller()
@@ -289,13 +292,13 @@ void EllipseFiller::on_mouse_pressed(const ToolAction &action)
         }
 
         registered_from_ = false;
-        is_to_change_    = false;
+        changed_canvas_  = true;
     }
     else
     {
         fill_from_ = action.point;
         registered_from_ = true;
-        is_to_change_    = true;
+        changed_canvas_  = false;
     }
 }
 
@@ -365,13 +368,13 @@ void Ellipse::on_mouse_pressed(const ToolAction &action)
         }
 
         registered_from_ = false;
-        is_to_change_    = false;
+        changed_canvas_  = true;
     }
     else
     {
         fill_from_ = action.point;
         registered_from_ = true;
-        is_to_change_    = true;
+        changed_canvas_  = false;
     }
 }
 
@@ -383,7 +386,8 @@ const char *Ellipse::get_texture_name() const
 Filler::Filler()
   : Tool()
 {
-    is_to_change_ = true;
+    changed_canvas_ = true;
+    requires_panel_ = false;
 }
 
 Filler::~Filler()
@@ -462,7 +466,8 @@ const char *Filler::get_texture_name() const
 Pipette::Pipette()
   : Tool()
 {
-    is_to_change_ = false;
+    changed_canvas_ = false;
+    requires_panel_ = false;
 }
 
 Pipette::~Pipette()
@@ -500,7 +505,8 @@ Brush::Brush()
   : Tool(),
     thickness_(DEFAULT_TOOL_BRUSH_RADIUS)
 {
-    is_to_change_ = true;
+    changed_canvas_ = true;
+    requires_panel_ = false;
 }
 
 Brush::~Brush()

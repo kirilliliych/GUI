@@ -96,13 +96,13 @@ Tool *ToolButton::get_tool() const
 
 void ToolButton::on_select()
 {
-    is_selected_ = true;
+    is_selected_      = true;
     requires_repaint_ = true;
 }
 
 void ToolButton::on_deselect()
 {
-    is_selected_ = false;
+    is_selected_      = false;
     requires_repaint_ = true;
 }
 

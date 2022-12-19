@@ -17,9 +17,26 @@ PaintEditor::PaintEditor(const Rectangle &rectangle, ContainerWidget *parent)
     Rectangle canvas_area = rectangle;
     canvas_area.set_x(canvas_area.get_x() + 25);
     canvas_area.set_y(canvas_area.get_y() + 25);
-    canvas_area.set_width(600);
-    canvas_area.set_height(400);
+    canvas_area.set_width(960);
+    canvas_area.set_height(540);
     canvas_= new Canvas(canvas_area, this);
+
+    Rectangle scrollbar_x_area{canvas_area.get_x(),
+                               canvas_area.get_y() + canvas_area.get_height() + 1,
+                               canvas_area.get_width(),
+                               30
+                              };
+    canvas_x_scrollbar_ = new Scrollbar(scrollbar_x_area, ScrollbarOrientation::Horizontal, 30, this);
+    canvas_x_scrollbar_->set_max_value(SHOWN_AND_IMAGE_SIZE_DELTA_X);
+    canvas_x_scrollbar_->value_changed.connect(canvas_, &Canvas::set_image_start_x);
+    Rectangle scrollbar_y_area{canvas_area.get_x() + canvas_area.get_width() + 1,
+                               canvas_area.get_y(),
+                               30,
+                               canvas_area.get_height()
+                              };
+    canvas_y_scrollbar_ = new Scrollbar(scrollbar_y_area, ScrollbarOrientation::Vertical, 30, this);
+    canvas_y_scrollbar_->set_max_value(SHOWN_AND_IMAGE_SIZE_DELTA_Y);
+    canvas_y_scrollbar_->value_changed.connect(canvas_, &Canvas::set_image_start_y);
 
     Rectangle side_panel_area = {rectangle.get_x() + rectangle.get_width()  - 250, 
                                  rectangle.get_y() + rectangle.get_height() - 300,
@@ -37,6 +54,8 @@ PaintEditor::~PaintEditor()
     }
 
     delete canvas_;
+    delete canvas_x_scrollbar_;
+    delete canvas_y_scrollbar_;
     delete side_panel_;
 }
 
@@ -75,6 +94,11 @@ void PaintEditor::add_tool(Tool *tool)
 {
     std::cout << __FILE__ << " add_tool_called" << std::endl;
     tools_.push_back(tool);
+    if (tool->requires_panel())
+    {
+        tool->create_zone();        // hide if tool is not active
+        //tool->get_zone()->hide();   
+    }
 }
 
 void PaintEditor::create_default_tools_()

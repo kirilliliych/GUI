@@ -34,6 +34,8 @@ public:
 
     bool load_from_image(const ImageSf &image);
 
+    ImageSf copy_to_image() const;
+
     void set_repeated(bool is_repeated);
 
     Texture &operator =(const Texture &other_texture);

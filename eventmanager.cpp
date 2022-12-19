@@ -150,7 +150,7 @@ EventHandlerState EventManager::handle_event(Event *event)
 
         case EventType::KeyPressed:
         {
-            if ((focused_ != nullptr) && (focused_->on_key_pressed_event(event) == EventHandlerState::Accepted))
+            if ((focused_ != nullptr) && (top_ != nullptr) && (top_->on_key_pressed_event(event) == EventHandlerState::Accepted)/*(focused_->on_key_pressed_event(event) == EventHandlerState::Accepted)*/)
             {
                 return EventHandlerState::Accepted;
             }
@@ -160,7 +160,7 @@ EventHandlerState EventManager::handle_event(Event *event)
 
         case EventType::KeyReleased:
         {
-            if ((focused_ != nullptr) && (focused_->on_key_released_event(event) == EventHandlerState::Accepted))
+            if ((focused_ != nullptr) && (top_ != nullptr) && (top_->on_key_released_event(event) == EventHandlerState::Accepted)/*(focused_->on_key_released_event(event) == EventHandlerState::Accepted)*/)
             {
                 return EventHandlerState::Accepted;
             }

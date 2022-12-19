@@ -256,7 +256,7 @@ public:
             return EventHandlerState::Accepted;
         }
 
-        const Color *to_paint = is_pressed_ ? DEFAULT_BUTTON_PRESSED_COLOR : is_hovered_ ? DEFAULT_BUTTON_HOVERING_COLOR : DEFAULT_WIDGET_COLOR;
+        const Color *to_paint = is_pressed_ ? DEFAULT_BUTTON_PRESSED_COLOR : is_hovered_ ? DEFAULT_BUTTON_HOVERING_COLOR : &color_;
         surface_->clear(0);
         surface_->draw_rectangle(area_, *to_paint);
         

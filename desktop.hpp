@@ -13,7 +13,7 @@
 #include "raytracer.hpp"
 #include "scene.hpp"
 #include "window.hpp"
-
+#include "scrollbar.hpp"
 
 
 class Desktop final : public ContainerWindow
@@ -27,7 +27,7 @@ public:
         main_surface_(new Surface{width, height})
     {
         menubar_area_   = {0, 0, area_.get_width(), 25};
-        raytracer_area_ = {50, 500, 400, 300};
+        raytracer_area_ = {1050, 50, 520, 400};
         pe_area_        = {0, 
                            menubar_area_.get_y() + menubar_area_.get_height() + 1,
                            width,
@@ -39,7 +39,7 @@ public:
     {
         delete main_surface_;
         delete menubar_;
-        //delete cringe_button_;
+        delete cringe_button_;
         delete raytracer_;
         delete pe_;
     }
@@ -50,12 +50,11 @@ public:
         raytracer_ = new Raytracer(raytracer_area_, this);
         menubar_   = new Menubar(menubar_area_, *DEFAULT_WIDGET_COLOR, this);
         
-        // cringe_button_ = new ActionButton{Rectangle{900, 200, 60, 30}, "Ur gay", GREEN,
-        //                                                                         *DEFAULT_BUTTON_HOVERING_COLOR,
-        //                                                                         *DEFAULT_TEXT_COLOR,
-        //                                                                          this};
-        // cringe_button_->mouse_entered.connect<Desktop>(this, &Desktop::meme);
-        // cringe_button_->clicked.connect<Desktop>(this, &Desktop::meme_change_text);
+        cringe_button_ = new ActionButton{Rectangle{100, 800, 60, 30}, "Ur gay", GREEN,
+                                                                                  *DEFAULT_BUTTON_HOVERING_COLOR,
+                                                                                  *DEFAULT_TEXT_COLOR,
+                                                                                  this};
+        cringe_button_->mouse_entered.connect<Desktop>(this, &Desktop::meme);
         
         init_menubar();
     }
@@ -98,41 +97,33 @@ public:
         update();
     }
 
-
-    //void 
-
-    // void meme()                                                                                 // just a joke
-    // {
-    //     srand(time(NULL));
-    //     Rectangle area = cringe_button_->get_area();
-    //     int x = 0;
-    //     int y = 0;
-    //     do 
-    //     {
-    //         x = rand() % ((int) (STANDARD_WINDOW_WIDTH  * 0.9) + 10) - STANDARD_WINDOW_WIDTH  * 0.45;
-    //         y = rand() % ((int) (STANDARD_WINDOW_HEIGHT * 0.9) + 10) - STANDARD_WINDOW_HEIGHT * 0.45;
-    //         std::cout << "x " << x + area.get_x() << " y " << area.get_y() << std::endl;
-    //     } while ((!get_area().contains(Point2d{x + area.get_x() + area.get_width(), y + area.get_y()}))  ||
-    //              (!get_area().contains(Point2d{x + area.get_x() - area.get_width(), y + area.get_y()}))  ||
-    //              (!get_area().contains(Point2d{x + area.get_x(), y + area.get_y() + area.get_height()})) ||
-    //              (!get_area().contains(Point2d{x + area.get_x(), y + area.get_y() - area.get_height()})));
+    void meme()                                                                                 // just a joke
+    {
+        srand(time(NULL));
+        Rectangle area = cringe_button_->get_area();
+        int x = 0;
+        int y = 0;
+        do 
+        {
+            x = rand() % ((int) (STANDARD_WINDOW_WIDTH  * 0.9) + 10) - STANDARD_WINDOW_WIDTH  * 0.45;
+            y = rand() % ((int) (STANDARD_WINDOW_HEIGHT * 0.9) + 10) - STANDARD_WINDOW_HEIGHT * 0.45;
+        } while ((!get_area().contains(Point2d{x + area.get_x() + area.get_width(), y + area.get_y()}))  ||
+                 (!get_area().contains(Point2d{x + area.get_x() - area.get_width(), y + area.get_y()}))  ||
+                 (!get_area().contains(Point2d{x + area.get_x(), y + area.get_y() + area.get_height()})) ||
+                 (!get_area().contains(Point2d{x + area.get_x(), y + area.get_y() - area.get_height()})));
     
-    //     cringe_button_->move(Point2d{x, y});
-    // }
-    // void meme_change_text()
-    // {
-    //     cringe_button_->set_text("Fuck u");
-    // }
+        cringe_button_->move(Point2d{x, y});
+    }
 //--------------------------------------------------------------------------------
 private:
 //public:
     Surface *main_surface_        = nullptr;
 
     Menubar *menubar_             = nullptr;
-    //ActionButton *cringe_button_  = nullptr;
+    ActionButton *cringe_button_  = nullptr;
     Raytracer *raytracer_         = nullptr;
     PaintEditor *pe_              = nullptr;
-
+    
     Rectangle menubar_area_{};
     Rectangle raytracer_area_{};
     Rectangle pe_area_{};

@@ -41,6 +41,11 @@ bool ImageSf::load_from_file(const char *file_name)
     return image_.loadFromFile(file_name);
 }
 
+void ImageSf::copy(const ImageSf &source, int dest_x, int dest_y)
+{
+    image_.copy(source.image_, static_cast<unsigned> (dest_x), static_cast<unsigned> (dest_y));
+}
+
 Color ImageSf::get_pixel(int x_coord, int y_coord)
 {
     sf::Color result = image_.getPixel(static_cast<unsigned> (x_coord), 
@@ -51,7 +56,6 @@ Color ImageSf::get_pixel(int x_coord, int y_coord)
 
 void ImageSf::set_pixel(int x_coord, int y_coord, Color color)
 {
-    //image_.setPixel(x_coord, y_coord, color.get_color_ref());
     image_.setPixel(x_coord, y_coord, sf::Color{color.get_uint32_color()});
 }
 

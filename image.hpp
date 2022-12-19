@@ -48,18 +48,18 @@ public:
 
     bool load_from_file(const char *file_name);
 
+    void copy(const ImageSf &source, int dest_x, int dest_y);
+
     Color get_pixel(int x_coord, int y_coord);
     void set_pixel(int x_coord, int y_coord, Color color);
-
 
     int get_width()  const;
     int get_height() const;
 
-
     void render_pixel(const Camera &camera, const SphereArr &spheres, int x, int y);
 
 private:
-
+public:
     int width_  = 0;
     int height_ = 0;
 

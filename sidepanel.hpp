@@ -5,6 +5,7 @@
 #include "colorpalette.hpp"
 #include "containerwidget.hpp"
 #include "toolpanel.hpp"
+#include "scrollbar.hpp"
 
 
 
