@@ -209,7 +209,7 @@ void PluginTool::create_default_zone()
     cur_plugin_ = this;
 
     std::cout << "DEFAULT ZONE CREATED" << std::endl;
-    zone_ = new PluginZone(Rectangle{1030, 630, 300, 250}, "DefaultPluginZone", PaintEditor::application_);
+    // zone_ = new PluginZone(Rectangle{1030, 630, 300, 250}, "DefaultPluginZone", PaintEditor::application_);
 }
 
 bool PluginTool::set_toolbar_size(size_t width, size_t height)
@@ -226,7 +226,7 @@ bool PluginTool::set_toolbar_size(size_t width, size_t height)
     }
 
     std::cout << "NON_DEFAULT_ZONE_CREATED" << std::endl;
-    zone_ = new PluginZone(Rectangle{0, 0, static_cast<int> (width), static_cast<int> (height)}, "DefaultPluginZone", PaintEditor::application_);
+    // zone_ = new PluginZone(Rectangle{0, 0, static_cast<int> (width), static_cast<int> (height)}, "DefaultPluginZone", PaintEditor::application_);
 
     return zone_ == nullptr ? false : true;
 }

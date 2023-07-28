@@ -50,11 +50,11 @@ public:
         raytracer_ = new Raytracer(raytracer_area_, this);
         menubar_   = new Menubar(menubar_area_, *DEFAULT_WIDGET_COLOR, this);
         
-        cringe_button_ = new ActionButton{Rectangle{100, 800, 60, 30}, "Ur gay", GREEN,
-                                                                                  *DEFAULT_BUTTON_HOVERING_COLOR,
-                                                                                  *DEFAULT_TEXT_COLOR,
-                                                                                  this};
-        cringe_button_->mouse_entered.connect<Desktop>(this, &Desktop::meme);
+        // cringe_button_ = new ActionButton{Rectangle{100, 800, 60, 30}, "Ur stupid", GREEN,
+        //                                                                           *DEFAULT_BUTTON_HOVERING_COLOR,
+        //                                                                           *DEFAULT_TEXT_COLOR,
+        //                                                                           this};
+        // cringe_button_->mouse_entered.connect<Desktop>(this, &Desktop::meme);
         
         init_menubar();
     }

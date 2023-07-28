@@ -5,7 +5,7 @@
 #include "../widgets/containerwidget.hpp"
 
 
-static const Color *DEFAULT_PLUGIN_ZONE_COLOR = &SEA_GREEN;
+static const Color *DEFAULT_PLUGIN_ZONE_COLOR =&SEA_GREEN;
 
 
 class PluginZone : public ContainerWidget
