@@ -3,7 +3,7 @@ The program is free-to-use for all kinds of developers.
 
 ***
 ## What does the project do
-This is an example of simple graphics editor, written on C++ language. [SFML library](https://www.sfml-dev.org/) was used for
+This is an example of simple graphics editor written on C++ language. [SFML library](https://www.sfml-dev.org/) was used for
 displaying all the elements of the program connected with graphics.
 
 ***
